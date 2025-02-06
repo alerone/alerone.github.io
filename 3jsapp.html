@@ -5,26 +5,29 @@
 -->
 <html lang="es">
     <head>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
         <title>Aplicacion en Threejs</title>
         <style>
-            body{ background-color: white;margin: 0px;overflow: hidden;}
+            body {
+                background-color: white;
+                margin: 0px;
+                overflow: hidden;
+            }
             #info {
-	            position: absolute;
-	            bottom: 0px;
+                position: absolute;
+                bottom: 0px;
                 left: 50px;
-	            width: 30%;
-	            text-align: left;
-	            z-index: 1; 
+                width: 30%;
+                text-align: left;
+                z-index: 1;
             }
         </style>
     </head>
     <body>
-
         <div id="container"></div>
 
         <div id="info">
-            <h2>WebGL/Threejs Example</h2> 
+            <h2>WebGL/Threejs Example</h2>
         </div>
 
         <!-- Este enlace esta recomendado en la web de threejs -->
@@ -32,11 +35,10 @@
 
         <!-- Declaracion del espacio de nombres three -->
         <script type="importmap">
-        { "imports": { "three": "./lib/three.module.js" } }
+            { "imports": { "three": "./lib/three.module.js" } }
         </script>
 
         <!-- Sustituir por el el script propio -->
-        <script type="module" src="js/myscript.js"></script>
-
+        <script type="module" src="js/Practica1.js"></script>
     </body>
 </html>
