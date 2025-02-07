@@ -50,13 +50,18 @@ function init() {
 }
 
 function loadScene() {
+    const ambientLight = new THREE.AmbientLight(0x404040, 6)
+    scene.add(ambientLight)
     const material = new THREE.MeshNormalMaterial()
     const materialSuelo = new THREE.MeshBasicMaterial({ color: 'yellow', wireframe: true })
     const materialGeom = new THREE.MeshBasicMaterial({ color: 0x282740 })
+    var textura = new THREE.TextureLoader().load('../images/Earth.jpg')
+    console.log(textura)
+    var earthMaterial = new THREE.MeshLambertMaterial({
+        map: textura,
+        side: THREE.DoubleSide,
+    })
     const rotacion = -Math.PI / 2
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2)
-    scene.add(ambientLight)
 
     const suelo = new THREE.Mesh(new THREE.PlaneGeometry(10, 10, 10, 10), materialSuelo)
     suelo.rotation.x = rotacion
@@ -67,6 +72,7 @@ function loadScene() {
         new THREE.CylinderGeometry(0.5, 0.5, 1, 64),
         new THREE.ConeGeometry(1, 1, 64),
         new THREE.BoxGeometry(1, 1, 1),
+        new THREE.SphereGeometry(0.5, 20, 20),
     ]
 
     const radius = 3 // Reducido para que entren bien en la escena
@@ -78,28 +84,19 @@ function loadScene() {
     pentagon.rotation.x = rotacion
     pentagon.add(new THREE.AxesHelper(3))
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
         const x = radius * Math.cos(angulos[i])
         const z = radius * Math.sin(angulos[i])
-        const figura = new THREE.Mesh(figuras[i], material)
+        let figura
+        if (i < 4) {
+            figura = new THREE.Mesh(figuras[i], material)
+        } else {
+            figura = new THREE.Mesh(figuras[i], earthMaterial)
+        }
         figura.position.set(x, 1, z)
         figura.add(new THREE.AxesHelper(2))
         groupFiguras.add(figura)
     }
-    glloader.load(
-        'models/earth.glb',
-        function(gltf) {
-            const x = radius * Math.cos(angulos[4])
-            const z = radius * Math.sin(angulos[4])
-            gltf.scene.position.set(x, 1, z)
-            gltf.scene.add(new THREE.AxesHelper(2))
-            groupFiguras.add(gltf.scene)
-        },
-        undefined,
-        function(error) {
-            console.error(error)
-        }
-    )
     /*******************
      * TO DO: Añadir a la escena un modelo importado en el centro del pentagono
      *******************/
