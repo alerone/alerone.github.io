@@ -77,6 +77,7 @@ function loadScene() {
     pentagon = new THREE.Mesh(pentagonoGeom, materialGeom)
     pentagon.translateY = 0.5
     pentagon.rotation.x = rotacion
+    pentagon.add(new THREE.AxesHelper(3))
 
     for (let i = 0; i < 5; i++) {
         const x = radius * Math.cos(angulos[i])
@@ -128,8 +129,6 @@ function loadScene() {
 
     scene.add(pentagon)
     scene.add(groupFiguras)
-
-    scene.add(new THREE.AxesHelper(3))
 }
 
 function changeAnimation(animationIndex) {
