@@ -61,11 +61,10 @@ function loadScene() {
     const suelo = new THREE.Mesh(new THREE.PlaneGeometry(10, 10, 10, 10), materialSuelo)
     suelo.rotation.x = rotacion
     scene.add(suelo)
-
+    const glloader = new GLTFLoader()
     const figuras = [
         new THREE.OctahedronGeometry(0.7),
         new THREE.CylinderGeometry(0.5, 0.5, 1, 64),
-        new THREE.SphereGeometry(0.5, 20, 20),
         new THREE.ConeGeometry(1, 1, 64),
         new THREE.BoxGeometry(1, 1, 1),
     ]
@@ -79,20 +78,31 @@ function loadScene() {
     pentagon.rotation.x = rotacion
     pentagon.add(new THREE.AxesHelper(3))
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
         const x = radius * Math.cos(angulos[i])
         const z = radius * Math.sin(angulos[i])
-
         const figura = new THREE.Mesh(figuras[i], material)
         figura.position.set(x, 1, z)
         figura.add(new THREE.AxesHelper(2))
-
         groupFiguras.add(figura)
     }
+    glloader.load(
+        'models/earth.glb',
+        function(gltf) {
+            const x = radius * Math.cos(angulos[4])
+            const z = radius * Math.sin(angulos[4])
+            gltf.scene.position.set(x, 1, z)
+            gltf.scene.add(new THREE.AxesHelper(2))
+            groupFiguras.add(gltf.scene)
+        },
+        undefined,
+        function(error) {
+            console.error(error)
+        }
+    )
     /*******************
      * TO DO: Añadir a la escena un modelo importado en el centro del pentagono
      *******************/
-    const glloader = new GLTFLoader()
 
     glloader.load(
         'models/giornoAnimations.glb',
@@ -104,7 +114,6 @@ function loadScene() {
             mixer = new THREE.AnimationMixer(gltf.scene)
 
             animations = gltf.animations
-            console.log(animations)
             if (animations.length > 0) {
                 activeAction = mixer.clipAction(animations[1])
 
