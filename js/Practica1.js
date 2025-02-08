@@ -16,6 +16,31 @@ import { GLTFLoader } from '../lib/GLTFLoader.module.js'
 import * as THREE from '../lib/three.module.js'
 import { OrbitControls } from '../lib/OrbitControls.module.js'
 
+// Shaders
+// Jquery está instalado en el HTML
+var vertexShader = $.ajax({
+    async: false,
+    url: '../shaders/vxEarth.glsl',
+    dataType: 'xml',
+}).responseText
+
+var fragmentShader = $.ajax({
+    async: false,
+    url: '../shaders/fsEarth.glsl',
+    dataType: 'xml',
+}).responseText
+
+var atmosphereVxShader = $.ajax({
+    async: false,
+    url: '../shaders/vxAtmosphere.glsl',
+    dataType: 'xml',
+}).responseText
+
+var atmosphereFxShader = $.ajax({
+    async: false,
+    url: '../shaders/fsAtmosphere.glsl',
+    dataType: 'xml',
+}).responseText
 // Variables de consenso
 let renderer, scene, camera
 
@@ -36,13 +61,16 @@ render()
 
 function init() {
     // Motor de render
-    renderer = new THREE.WebGLRenderer()
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+    })
     renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setPixelRatio(window.devicePixelRatio)
     document.getElementById('container').appendChild(renderer.domElement)
 
     // Escena
     scene = new THREE.Scene()
-    scene.background = new THREE.Color(0.5, 0.5, 0.5)
+    scene.background = new THREE.Color('black')
 
     // GUI controls
 
@@ -53,7 +81,7 @@ function init() {
     }
 
     gui.add(options, 'speed', 0, 0.1)
-    gui.add(options, 'wireframe').onChange(function(e) {
+    gui.add(options, 'wireframe').onChange(function (e) {
         groupFiguras.children.forEach((fig) => {
             fig.material.wireframe = e
         })
@@ -71,70 +99,120 @@ function init() {
 }
 
 function loadScene() {
+    // Rotación para que los elementos se encuentren en el eje zx
+    const rotacion = -Math.PI / 2
+    // Lighting the scene
     const ambientLight = new THREE.AmbientLight(0x404040, 6)
     scene.add(ambientLight)
+
+    // Material que da color según la normal
     const material = new THREE.MeshNormalMaterial()
+
+    // Material para el suelo
     const materialSuelo = new THREE.MeshBasicMaterial({ color: 'yellow', wireframe: true })
+
+    // Material para el pentagono
     const materialGeom = new THREE.MeshBasicMaterial({ color: 0x282740 })
-    var textura = new THREE.TextureLoader().load('../images/Earth.jpg')
-    console.log(textura)
-    var earthMaterial = new THREE.MeshLambertMaterial({
-        map: textura,
-        side: THREE.DoubleSide,
+
+    // Material para el globo terráqueo
+    var earthMaterial = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            globeTexture: {
+                value: new THREE.TextureLoader().load('../images/Earth.jpg'),
+            },
+        },
     })
-    const rotacion = -Math.PI / 2
+
+    var atmosphereMaterial = new THREE.ShaderMaterial({
+        vertexShader: atmosphereVxShader,
+        fragmentShader: atmosphereFxShader,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+    })
 
     const suelo = new THREE.Mesh(new THREE.PlaneGeometry(10, 10, 10, 10), materialSuelo)
     suelo.rotation.x = rotacion
     scene.add(suelo)
+
+    // Cargador de modelos GLTF
     const glloader = new GLTFLoader()
+    // Figuras que se añaden encima del pentágono
     const figuras = [
         new THREE.OctahedronGeometry(0.7),
         new THREE.CylinderGeometry(0.5, 0.5, 1, 64),
         new THREE.ConeGeometry(1, 1, 64),
         new THREE.BoxGeometry(1, 1, 1),
-        new THREE.SphereGeometry(0.5, 20, 20),
+        new THREE.SphereGeometry(0.5, 40, 40),
     ]
 
-    const radius = 3 // Reducido para que entren bien en la escena
+    const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 40, 40), atmosphereMaterial)
+
+    atmosphere.scale.set(1.1, 1.1, 1.1)
+    const globe = new THREE.Object3D()
+
+    const starVertices = []
+    const starGeometry = new THREE.BufferGeometry()
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff })
+
+    for (let i = 0; i < 10000; i++) {
+        const x = (Math.random() - 0.5) * 2000
+        const y = (Math.random() - 0.5) * 2000
+        const z = -Math.random() * 2000
+        starVertices.push(x, y, z)
+    }
+
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3))
+
+    const stars = new THREE.Points(starGeometry, starMaterial)
+    scene.add(stars)
+
+    const radio = 3 // Reducido para que entren bien en la escena
     const angulos = [0, (2 * Math.PI) / 5, (4 * Math.PI) / 5, (6 * Math.PI) / 5, (8 * Math.PI) / 5]
 
-    const pentagonoGeom = new THREE.CircleGeometry(radius, 5)
+    // Un pentágono no es más que un círculo con pocos 5 polígonos
+    const pentagonoGeom = new THREE.CircleGeometry(radio, 5)
     pentagon = new THREE.Mesh(pentagonoGeom, materialGeom)
     pentagon.translateY = 0.5
     pentagon.rotation.x = rotacion
     pentagon.add(new THREE.AxesHelper(3))
 
+    // Bucle que itera sobre las figuras para añadir las coordenadas e instanciarlas en el FigureGroup
     for (let i = 0; i < 5; i++) {
-        const x = radius * Math.cos(angulos[i])
-        const z = radius * Math.sin(angulos[i])
+        const x = radio * Math.cos(angulos[i])
+        const z = radio * Math.sin(angulos[i])
         let figura
         if (i < 4) {
             figura = new THREE.Mesh(figuras[i], material)
+            figura.position.set(x, 1, z)
+            figura.add(new THREE.AxesHelper(2))
+            groupFiguras.add(figura)
         } else {
             figura = new THREE.Mesh(figuras[i], earthMaterial)
+            globe.add(figura)
+            globe.add(atmosphere)
+            globe.position.set(x, 1, z)
+            figura.add(new THREE.AxesHelper(2))
+            groupFiguras.add(globe)
         }
-        figura.position.set(x, 1, z)
-        figura.add(new THREE.AxesHelper(2))
-        groupFiguras.add(figura)
     }
-    /*******************
-     * TO DO: Añadir a la escena un modelo importado en el centro del pentagono
-     *******************/
 
+    // Utilizamos el glloader para cargar el giorno bailarín
     glloader.load(
         'models/giornoAnimations.glb',
-        function(gltf) {
-            //glloader.load( 'models/robota/scene.gltf', function ( gltf ) {
+        function (gltf) {
             scene.add(gltf.scene)
             console.log('giorno doing a backflip!')
             console.log(gltf)
             mixer = new THREE.AnimationMixer(gltf.scene)
 
             animations = gltf.animations
+            // Si el modelo tiene animaciones, animala
             if (animations.length > 0) {
                 activeAction = mixer.clipAction(animations[1])
 
+                // Cuando una animación termina, ejecuta la siguiente
                 mixer.addEventListener('finished', (e) => {
                     const nextAnimIndex =
                         (animations.indexOf(e.action._clip) + 1) % animations.length
@@ -145,7 +223,7 @@ function loadScene() {
             }
         },
         undefined,
-        function(error) {
+        function (error) {
             console.error(error)
         }
     )
@@ -158,6 +236,7 @@ function loadScene() {
     scene.add(groupFiguras)
 }
 
+// Helper para cambiar entre las animaciones en base al índice en la lista animations
 function changeAnimation(animationIndex) {
     if (!animations || animations.length == 0) return
     if (activeAction) {
@@ -178,13 +257,10 @@ function update() {
 
     for (let i = 0; i < figs.length; i++) {
         const fig = figs[i]
-
         // Mueve los objetos de arriba a abajo
         fig.position.y = 0.5 + 1 * Math.abs(Math.sin(step))
         fig.rotation.x += options.speed
     }
-    //camera.translateY(0.0005)
-
     if (mixer) {
         mixer.update(0.007)
     }
