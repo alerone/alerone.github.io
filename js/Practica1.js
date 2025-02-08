@@ -149,7 +149,7 @@ function loadScene() {
 
     const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 40, 40), atmosphereMaterial)
 
-    atmosphere.scale.set(1.1, 1.1, 1.1)
+    atmosphere.scale.set(1.05, 1.05, 1.05)
     const globe = new THREE.Object3D()
 
     const starVertices = []
@@ -159,7 +159,7 @@ function loadScene() {
     for (let i = 0; i < 10000; i++) {
         const x = (Math.random() - 0.5) * 2000
         const y = (Math.random() - 0.5) * 2000
-        const z = -Math.random() * 2000
+        const z = (Math.random() - 0.5) * 2000
         starVertices.push(x, y, z)
     }
 
