@@ -4,5 +4,8 @@
     "eslint": "^9.19.0",
     "globals": "^15.14.0",
     "prettier": "^3.4.2"
+  },
+  "dependencies": {
+    "dat.gui": "^0.7.9"
   }
 }

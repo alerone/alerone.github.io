@@ -11,9 +11,10 @@
  */
 
 // Modulos necesarios
+import { GUI } from 'https://unpkg.com/dat.gui@0.7.9/build/dat.gui.module.js'
 import { GLTFLoader } from '../lib/GLTFLoader.module.js'
 import * as THREE from '../lib/three.module.js'
-//import {GLTFLoader} from "../lib/GLTFLoader.module.js";
+import { OrbitControls } from '../lib/OrbitControls.module.js'
 
 // Variables de consenso
 let renderer, scene, camera
@@ -24,9 +25,9 @@ let renderer, scene, camera
  *******************/
 let pentagon
 let groupFiguras = new THREE.Object3D()
-let isGoingUp = false
-let elevation = 0
 let mixer, animations, activeAction
+let step = 0
+let options
 
 // Acciones
 init()
@@ -43,9 +44,29 @@ function init() {
     scene = new THREE.Scene()
     scene.background = new THREE.Color(0.5, 0.5, 0.5)
 
+    // GUI controls
+
+    const gui = new GUI()
+    options = {
+        speed: 0.007,
+        wireframe: false,
+    }
+
+    gui.add(options, 'speed', 0, 0.1)
+    gui.add(options, 'wireframe').onChange(function(e) {
+        groupFiguras.children.forEach((fig) => {
+            fig.material.wireframe = e
+        })
+    })
+
     // Camara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
+    // Orbit controls para mover la camara con el mouse
+    const orbit = new OrbitControls(camera, renderer.domElement)
+
     camera.position.set(0.5, 5, 7)
+    orbit.update()
     camera.lookAt(new THREE.Vector3(0, 1, 1))
 }
 
@@ -150,27 +171,17 @@ function changeAnimation(animationIndex) {
 }
 
 function update() {
-    const speed = 0.003
-    pentagon.rotation.z += speed
-    groupFiguras.rotation.y += speed
+    pentagon.rotation.z += options.speed
+    groupFiguras.rotation.y += options.speed
     let figs = groupFiguras.children
+    step += options.speed
 
     for (let i = 0; i < figs.length; i++) {
         const fig = figs[i]
-        if (isGoingUp) {
-            fig.translateZ(speed)
-            elevation += speed
-            if (elevation >= 1) {
-                isGoingUp = false
-            }
-        } else {
-            fig.translateZ(-speed)
-            elevation -= speed
-            if (elevation >= 0) {
-                isGoingUp = true
-            }
-        }
-        fig.rotation.x += speed
+
+        // Mueve los objetos de arriba a abajo
+        fig.position.y = 0.5 + 1 * Math.abs(Math.sin(step))
+        fig.rotation.x += options.speed
     }
     //camera.translateY(0.0005)
 
