@@ -6,26 +6,65 @@
   rvivo@upv.es 2022
 -->
 <html lang="es">
-	<head>
-		<meta charset='utf-8'>
-		<title>Threejs App</title>
-		<style>
-			body {
-				background-color: #000;
-				margin: 0px;
-				overflow: hidden;
-			}
-		</style>
-	</head>
-	<body>
-		<!-- Contenedor del app -->
-		<div id="container"></div>
+    <head>
+        <meta charset="utf-8" />
+        <title>Threejs App</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                background-color: #000;
+                margin: 0px;
+                overflow: hidden;
+            }
 
-		<!-- Scripts de biblioteca -->
-		<script src="lib/three.min_r140.js"></script>
-		<script src="lib/OrbitControls.js"></script>
+            .exo2-font {
+                font-family: 'Exo 2', serif;
+                font-optical-sizing: auto;
+                font-weight: 600;
+                font-style: italic;
+            }
+            .lato-font {
+                font-family: 'Lato', serif;
+                font-weight: 400;
+                font-style: normal;
+            }
+        </style>
+        <link href="tailwind.css" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Contenedor del app -->
+        <div class="flex h-screen">
+            <div class="w-1/2 flex flex-col justify-center px-8">
+                <h1 class="exo2-font text-4xl text-white mb-8">Welcome to the AlerONE page!</h1>
+                <p class="lato-font text-white mb-6">
+                    I am a master's student in Computer Engineering from Spain, having completed my
+                    degree in Computer Science. I have a strong passion for programming,
+                    particularly in Golang. However, I also have experience with Java, Python,
+                    JavaScript, and TypeScript, among other languages. Adapting to new programming
+                    languages comes naturally to me, as demonstrated by my experience in developing
+                    an interpreter.
+                </p>
+                <div>
+                    <a
+                        href="./3jsapp.html"
+                        class="text-white bg-green-600 inline-block px-6 py-3 rounded-full"
+                        >Practicing with Threejs</a
+                    >
+                </div>
+            </div>
+            <div id="canvasContainer" class="w-1/2">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
 
-		<script src="js/test.js"></script>
-
-	</body>
+        <!-- Scripts de biblioteca -->
+        <script src="../lib/gsap.min.js"></script>
+        <script src="../lib/jquery.min.js"></script>
+        <script type="module" src="js/home.js"></script>
+    </body>
 </html>

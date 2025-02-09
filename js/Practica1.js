@@ -1,15 +1,3 @@
-/**
- *
- * Escena.js
- *
- * Practica AGM #1. Escena basica en three.js
- * Seis objetos organizados en un grafo de escena con
- * transformaciones, animacion basica y modelos importados
- *
- * @author
- *
- */
-
 // Modulos necesarios
 import { GUI } from 'https://unpkg.com/dat.gui@0.7.9/build/dat.gui.module.js'
 import { GLTFLoader } from '../lib/GLTFLoader.module.js'
@@ -76,14 +64,14 @@ function init() {
 
     const gui = new GUI()
     options = {
-        speed: 0.007,
+        speed: 25.0,
         wireframe: false,
     }
 
-    gui.add(options, 'speed', 0, 0.1)
-    gui.add(options, 'wireframe').onChange(function (e) {
+    gui.add(options, 'speed', 0, 100)
+    gui.add(options, 'wireframe').onChange(function(e) {
         groupFiguras.children.forEach((fig) => {
-            fig.material.wireframe = e
+            if (fig.material) fig.material.wireframe = e
         })
     })
 
@@ -159,7 +147,7 @@ function loadScene() {
     for (let i = 0; i < 10000; i++) {
         const x = (Math.random() - 0.5) * 2000
         const y = (Math.random() - 0.5) * 2000
-        const z = (Math.random() - 0.5) * 2000
+        const z = (Math.random() - 0.5) * 2000 + 150
         starVertices.push(x, y, z)
     }
 
@@ -201,7 +189,7 @@ function loadScene() {
     // Utilizamos el glloader para cargar el giorno bailarín
     glloader.load(
         'models/giornoAnimations.glb',
-        function (gltf) {
+        function(gltf) {
             scene.add(gltf.scene)
             console.log('giorno doing a backflip!')
             console.log(gltf)
@@ -223,7 +211,7 @@ function loadScene() {
             }
         },
         undefined,
-        function (error) {
+        function(error) {
             console.error(error)
         }
     )
@@ -250,16 +238,17 @@ function changeAnimation(animationIndex) {
 }
 
 function update() {
-    pentagon.rotation.z += options.speed
-    groupFiguras.rotation.y += options.speed
+    const speedRate = (options.speed * 0.025) / 100
+    pentagon.rotation.z += speedRate
+    groupFiguras.rotation.y += speedRate
     let figs = groupFiguras.children
-    step += options.speed
+    step += speedRate
 
     for (let i = 0; i < figs.length; i++) {
         const fig = figs[i]
         // Mueve los objetos de arriba a abajo
         fig.position.y = 0.5 + 1 * Math.abs(Math.sin(step))
-        fig.rotation.x += options.speed
+        fig.rotation.x += speedRate
     }
     if (mixer) {
         mixer.update(0.007)
@@ -276,3 +265,7 @@ function render() {
     update()
     renderer.render(scene, camera)
 }
+
+window.addEventListener('resize', function() {
+    renderer.setSize(window.innerWidth, window.innerHeight)
+})
