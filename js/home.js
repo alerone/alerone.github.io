@@ -32,7 +32,8 @@ addEventListener('mousemove', (e) => {
 
 addEventListener('resize', () => {
     renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
-    //camera.aspect = canvasContainer.offsetWidth / canvasContainer.offsetHeight;
+    camera.aspect = canvasContainer.offsetWidth / canvasContainer.offsetHeight;
+    camera.updateProjectionMatrix()
 });
 
 function init() {
@@ -42,7 +43,7 @@ function init() {
         canvas: document.querySelector('canvas'),
     });
 
-    let canvasContainer = document.querySelector('#canvasContainer');
+    canvasContainer = document.querySelector('#canvasContainer');
     renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
     renderer.setPixelRatio(devicePixelRatio);
 
@@ -51,7 +52,7 @@ function init() {
 
     const progressContainer = document.querySelector('#loading-screen');
 
-    loadManager.onLoad = function () {
+    loadManager.onLoad = function() {
         console.log('loaded');
         progressContainer.style.display = 'none';
     };
@@ -80,6 +81,8 @@ function loadScene() {
 
     atmosphereVxShader = loadShader('../shaders/vxAtmosphere.glsl');
     atmosphereFxShader = loadShader('../shaders/fsAtmosphere.glsl');
+    let radius
+    let precision
 
     if (Math.round(Math.random()) == 1) {
         document.querySelector('.progress-bar-container').style.display = 'none';
@@ -88,6 +91,8 @@ function loadScene() {
         fragmentPars = loadShader('../shaders/morphFrag_pars.glsl');
         fragmentMain = loadShader('../shaders/morphFrag_main.glsl');
         sphereMaterial = loadBlackMatterMaterial();
+        radius = 4
+        precision = 75
     } else {
         vertexShader = loadShader('../shaders/vxEarth.glsl');
         fragmentShader = loadShader('../shaders/fsEarth.glsl');
@@ -97,13 +102,15 @@ function loadScene() {
         } else {
             sphereMaterial = loadEarthMaterial('../images/Earth.jpg', textureLoader);
         }
+        radius = 6
+        precision = 30
     }
 
-    sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(5, 300), sphereMaterial);
-    sphere.rotation.x = 5;
+    sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(radius, precision), sphereMaterial);
+    sphere.rotation.y = 5;
 
     atmosphere = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(5, 50),
+        new THREE.IcosahedronGeometry(radius, 15),
         new THREE.ShaderMaterial({
             vertexShader: atmosphereVxShader,
             fragmentShader: atmosphereFxShader,
@@ -201,10 +208,10 @@ function loadShader(url) {
         async: false,
         url: url,
         datatype: 'text',
-        success: function (data) {
+        success: function(data) {
             shader = data;
         },
-        error: function () {
+        error: function() {
             console.error('Error al cargar el shader');
         },
     });
