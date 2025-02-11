@@ -2,70 +2,17 @@ import * as THREE from '../lib/three.module.js';
 
 let renderer, scene, camera;
 
-var vertexShader = $.ajax({
-    async: false,
-    url: '../shaders/vxEarth.glsl',
-    dataType: 'xml',
-}).responseText;
+var vertexShader, fragmentShader;
+var atmosphereVxShader, atmosphereFxShader;
 
-var fragmentShader = $.ajax({
-    async: false,
-    url: '../shaders/fsEarth.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var atmosphereVxShader = $.ajax({
-    async: false,
-    url: '../shaders/vxAtmosphere.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var atmosphereFxShader = $.ajax({
-    async: false,
-    url: '../shaders/fsAtmosphere.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var morphFShader = $.ajax({
-    async: false,
-    url: '../shaders/fsMorph.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var morphVxShader = $.ajax({
-    async: false,
-    url: '../shaders/vxMorph.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var vertexPars = $.ajax({
-    async: false,
-    url: '../shaders/morphVertex_pars.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var vertexMain = $.ajax({
-    async: false,
-    url: '../shaders/morphVertex_main.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var fragmentMain = $.ajax({
-    async: false,
-    url: '../shaders/morphFrag_main.glsl',
-    dataType: 'xml',
-}).responseText;
-
-var fragmentPars = $.ajax({
-    async: false,
-    url: '../shaders/morphFrag_pars.glsl',
-    dataType: 'xml',
-}).responseText;
+var vertexPars, vertexMain;
+var fragmentPars, fragmentMain;
 
 let sphere, atmosphere;
 let sphereMaterial;
 let group;
 let canvasContainer;
+let loadManager, textureLoader;
 
 const mouse = {
     x: undefined,
@@ -99,6 +46,18 @@ function init() {
     renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
     renderer.setPixelRatio(devicePixelRatio);
 
+    const progressBar = document.querySelector('#progress-bar');
+    loadManager = new THREE.LoadingManager();
+
+    const progressContainer = document.querySelector('#loading-screen');
+
+    loadManager.onLoad = function () {
+        console.log('loaded');
+        progressContainer.style.display = 'none';
+    };
+
+    textureLoader = new THREE.TextureLoader(loadManager);
+
     scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
 
@@ -119,64 +78,27 @@ function loadScene() {
     ambientLight.position.set(7, 7, 7);
     scene.add(ambientLight);
 
-    let atmosphereColor = new THREE.Color(0.3, 0.6, 0.9);
-
-    let earthTexture = new THREE.TextureLoader().load('../images/Earth.jpg');
-    let currentTime = new Date();
-    if (currentTime.getHours() < 7 || currentTime.getHours() >= 19) {
-        earthTexture = new THREE.TextureLoader().load('../images/EarthNight.jpg');
-    }
-
-    sphereMaterial = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-            globeTexture: {
-                value: new THREE.TextureLoader().load('../images/Earth.jpg'),
-            },
-            uTime: { value: 0.0 },
-        },
-    });
+    atmosphereVxShader = loadShader('../shaders/vxAtmosphere.glsl');
+    atmosphereFxShader = loadShader('../shaders/fsAtmosphere.glsl');
 
     if (Math.round(Math.random()) == 1) {
-        for (let i = 0; i < 100; i++) {
-            const light = new THREE.PointLight(randomColor(), 1, 10);
-            light.position.set(i * 5 - 5, 5, i);
-            scene.add(light);
+        document.querySelector('.progress-bar-container').style.display = 'none';
+        vertexPars = loadShader('../shaders/morphVertex_pars.glsl');
+        vertexMain = loadShader('../shaders/morphVertex_main.glsl');
+        fragmentPars = loadShader('../shaders/morphFrag_pars.glsl');
+        fragmentMain = loadShader('../shaders/morphFrag_main.glsl');
+        sphereMaterial = loadBlackMatterMaterial();
+    } else {
+        vertexShader = loadShader('../shaders/vxEarth.glsl');
+        fragmentShader = loadShader('../shaders/fsEarth.glsl');
+        let currentTime = new Date();
+        if (currentTime.getHours() < 7 || currentTime.getHours() >= 19) {
+            sphereMaterial = loadEarthMaterial('../images/EarthNight.jpg', textureLoader);
+        } else {
+            sphereMaterial = loadEarthMaterial('../images/Earth.jpg', textureLoader);
         }
-        sphereMaterial = new THREE.MeshStandardMaterial({
-            onBeforeCompile: (shader) => {
-                sphereMaterial.userData.shader = shader;
-                shader.uniforms.uTime = { value: 0.0 };
-                shader.uniforms.globeTexture = { value: earthTexture };
-                const parseVertexString = `#include <displacementmap_pars_vertex>`;
-                shader.vertexShader = shader.vertexShader.replace(
-                    parseVertexString,
-                    parseVertexString + vertexPars
-                );
-
-                const mainVertexString = `#include <displacementmap_vertex>`;
-                shader.vertexShader = shader.vertexShader.replace(
-                    mainVertexString,
-                    mainVertexString + vertexMain
-                );
-
-                const mainFragmentString = `#include <normal_fragment_maps>`;
-                shader.fragmentShader = shader.fragmentShader.replace(
-                    mainFragmentString,
-                    mainFragmentString + fragmentMain
-                );
-                const parsFragmentString = `#include <bumpmap_pars_fragment>`;
-                shader.fragmentShader = shader.fragmentShader.replace(
-                    parsFragmentString,
-                    parsFragmentString + fragmentPars
-                );
-                console.log(shader.fragmentShader);
-                sphereMaterial.needsUpdate = true;
-            },
-        });
-        atmosphereColor = randomColor();
     }
+
     sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(5, 300), sphereMaterial);
     sphere.rotation.x = 5;
 
@@ -218,6 +140,75 @@ function loadScene() {
     scene.add(stars);
     group.add(sphere);
     scene.add(group);
+}
+
+function loadEarthMaterial(textureURL, textureLoader) {
+    let texture = textureLoader.load(textureURL);
+
+    return new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            globeTexture: {
+                value: texture,
+            },
+            uTime: { value: 0.0 },
+        },
+    });
+}
+
+function loadBlackMatterMaterial() {
+    for (let i = 0; i < 100; i++) {
+        const light = new THREE.PointLight(randomColor(), 1, 10);
+        light.position.set(i * 5 - 5, 5, i);
+        scene.add(light);
+    }
+    let result = new THREE.MeshStandardMaterial({
+        onBeforeCompile: (shader) => {
+            result.userData.shader = shader;
+            shader.uniforms.uTime = { value: 0.0 };
+            const parseVertexString = `#include <displacementmap_pars_vertex>`;
+            shader.vertexShader = shader.vertexShader.replace(
+                parseVertexString,
+                parseVertexString + vertexPars
+            );
+
+            const mainVertexString = `#include <displacementmap_vertex>`;
+            shader.vertexShader = shader.vertexShader.replace(
+                mainVertexString,
+                mainVertexString + vertexMain
+            );
+
+            const mainFragmentString = `#include <normal_fragment_maps>`;
+            shader.fragmentShader = shader.fragmentShader.replace(
+                mainFragmentString,
+                mainFragmentString + fragmentMain
+            );
+            const parsFragmentString = `#include <bumpmap_pars_fragment>`;
+            shader.fragmentShader = shader.fragmentShader.replace(
+                parsFragmentString,
+                parsFragmentString + fragmentPars
+            );
+            result.needsUpdate = true;
+        },
+    });
+    return result;
+}
+
+function loadShader(url) {
+    let shader;
+    $.ajax({
+        async: false,
+        url: url,
+        datatype: 'text',
+        success: function (data) {
+            shader = data;
+        },
+        error: function () {
+            console.error('Error al cargar el shader');
+        },
+    });
+    return shader;
 }
 
 function randomColor() {
