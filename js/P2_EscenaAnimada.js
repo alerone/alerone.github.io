@@ -1,8 +1,30 @@
+/**
+ * EscenaAnimada.js
+ *
+ * Practica AGM #2. Escena basica con interfaz y animacion
+ * Se trata de añadir un interfaz de usuario que permita
+ * disparar animaciones sobre los objetos de la escena con Tween
+ *
+ * @author
+ *
+ */
+
 // Modulos necesarios
+/*******************
+ * TO DO: Cargar los modulos necesarios
+ *******************/
 import { GUI } from '../lib/lil-gui.module.min.js'
 import { GLTFLoader } from '../lib/GLTFLoader.module.js'
 import * as THREE from '../lib/three.module.js'
 import { OrbitControls } from '../lib/OrbitControls.module.js'
+
+// Variables de consenso
+let renderer, scene, camera
+
+// Otras globales
+/*******************
+ * TO DO: Variables globales de la aplicacion
+ *******************/
 
 // Shaders
 // Jquery está instalado en el HTML
@@ -29,22 +51,18 @@ var atmosphereFxShader = $.ajax({
     url: '../shaders/fsAtmosphere.glsl',
     dataType: 'xml',
 }).responseText
-// Variables de consenso
-let renderer, scene, camera
 
-// Otras globales
-/*******************
- * TO DO: Variables globales de la aplicacion
- *******************/
 let pentagon
 let groupFiguras = new THREE.Object3D()
 let mixer, animations, activeAction
+let gui
 let step = 0
 let options
 
 // Acciones
 init()
 loadScene()
+loadGUI()
 render()
 
 function init() {
@@ -53,37 +71,24 @@ function init() {
         antialias: true,
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
+    /*******************
+     * TO DO: Completar el motor de render y el canvas
+     *******************/
     renderer.setPixelRatio(window.devicePixelRatio)
     document.getElementById('container').appendChild(renderer.domElement)
 
     // Escena
     scene = new THREE.Scene()
-    scene.background = new THREE.Color('black')
-
-    // GUI controls
-
-    const gui = new GUI()
-    options = {
-        speed: 25.0,
-        wireframe: false,
-    }
-
-    gui.add(options, 'speed', 0, 100)
-    gui.add(options, 'wireframe').onChange(function (e) {
-        groupFiguras.children.forEach((fig) => {
-            if (fig.material) fig.material.wireframe = e
-        })
-    })
 
     // Camara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-
-    // Orbit controls para mover la camara con el mouse
+    camera.position.set(0.5, 2, 7)
+    /*******************
+     * TO DO: Añadir manejador de camara (OrbitControls)
+     *******************/
     const orbit = new OrbitControls(camera, renderer.domElement)
-
-    camera.position.set(0.5, 5, 7)
     orbit.update()
-    camera.lookAt(new THREE.Vector3(0, 1, 1))
+    camera.lookAt(new THREE.Vector3(0, 1, 0))
 }
 
 function loadScene() {
@@ -130,11 +135,10 @@ function loadScene() {
     const figuras = [
         new THREE.OctahedronGeometry(0.7),
         new THREE.CylinderGeometry(0.5, 0.5, 1, 64),
-        new THREE.ConeGeometry(1, 1, 64),
+        new THREE.TorusKnotGeometry(10, 3, 64, 8, 15, 3),
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.SphereGeometry(0.5, 40, 40),
     ]
-
     const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 40, 40), atmosphereMaterial)
 
     atmosphere.scale.set(1.05, 1.05, 1.05)
@@ -173,6 +177,7 @@ function loadScene() {
         let figura
         if (i < 4) {
             figura = new THREE.Mesh(figuras[i], material)
+            if (i == 2) figura.scale.set(0.05, 0.05, 0.05)
             figura.position.set(x, 1, z)
             figura.add(new THREE.AxesHelper(2))
             groupFiguras.add(figura)
@@ -191,24 +196,6 @@ function loadScene() {
         'models/giornoAnimations.glb',
         function (gltf) {
             scene.add(gltf.scene)
-            console.log('giorno doing a backflip!')
-            console.log(gltf)
-            mixer = new THREE.AnimationMixer(gltf.scene)
-
-            animations = gltf.animations
-            // Si el modelo tiene animaciones, animala
-            if (animations.length > 0) {
-                activeAction = mixer.clipAction(animations[1])
-
-                // Cuando una animación termina, ejecuta la siguiente
-                mixer.addEventListener('finished', (e) => {
-                    const nextAnimIndex =
-                        (animations.indexOf(e.action._clip) + 1) % animations.length
-                    changeAnimation(nextAnimIndex)
-                })
-                activeAction.setLoop(THREE.LoopOnce)
-                activeAction.play()
-            }
         },
         undefined,
         function (error) {
@@ -225,47 +212,36 @@ function loadScene() {
 }
 
 // Helper para cambiar entre las animaciones en base al índice en la lista animations
-function changeAnimation(animationIndex) {
-    if (!animations || animations.length == 0) return
-    if (activeAction) {
-        activeAction.fadeOut(0.5)
+function loadGUI() {
+    // Interfaz de usuario
+    /*******************
+     * TO DO: Crear la interfaz de usuario con la libreria lil-gui.js
+     * - Funcion de disparo de animaciones. Las animaciones deben ir
+     *   encadenadas
+     * - Slider de control de radio del pentagono
+     * - Checkbox para alambrico/solido
+     *******************/
+    gui = new GUI()
+    options = {
+        mensaje: 'Soy un mensaje',
+        radio: 5.0,
+        animate: true,
+        speed: 25.0,
+        wireframe: false,
     }
-
-    activeAction = mixer.clipAction(animations[animationIndex])
-    activeAction.setLoop(THREE.LoopOnce)
-    activeAction.reset().fadeIn(0.5)
-    activeAction.play()
+    const folder = gui.addFolder('Opciones Rechulonas')
+    folder.add(options, 'mensaje').name('Aplicacion')
+    folder.add(options, 'radio', 0, 0, 0)
 }
 
-function update() {
-    const speedRate = (options.speed * 0.025) / 100
-    pentagon.rotation.z += speedRate
-    groupFiguras.rotation.y += speedRate
-    let figs = groupFiguras.children
-    step += speedRate
-
-    for (let i = 0; i < figs.length; i++) {
-        const fig = figs[i]
-        // Mueve los objetos de arriba a abajo
-        fig.position.y = 1.5 * 1 - Math.sin(step)
-        fig.rotation.x += speedRate
-    }
-    if (mixer) {
-        mixer.update(0.007)
-    }
-
+function update(delta) {
     /*******************
-     * TO DO: Modificar el angulo de giro de cada objeto sobre si mismo
-     * y del conjunto pentagonal sobre el objeto importado
+     * TO DO: Actualizar tween
      *******************/
 }
 
-function render() {
+function render(delta) {
     requestAnimationFrame(render)
-    update()
+    update(delta)
     renderer.render(scene, camera)
 }
-
-window.addEventListener('resize', function () {
-    renderer.setSize(window.innerWidth, window.innerHeight)
-})
