@@ -14,6 +14,11 @@ let group;
 let canvasContainer;
 let loadManager, textureLoader;
 
+let scale = 0;
+
+let isShowingBlackMatter = Math.round(Math.random());
+//let isShowingBlackMatter = true;
+
 const mouse = {
     x: undefined,
     y: undefined,
@@ -33,7 +38,7 @@ addEventListener('mousemove', (e) => {
 addEventListener('resize', () => {
     renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
     camera.aspect = canvasContainer.offsetWidth / canvasContainer.offsetHeight;
-    camera.updateProjectionMatrix()
+    camera.updateProjectionMatrix();
 });
 
 function init() {
@@ -47,12 +52,11 @@ function init() {
     renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
     renderer.setPixelRatio(devicePixelRatio);
 
-    const progressBar = document.querySelector('#progress-bar');
     loadManager = new THREE.LoadingManager();
 
     const progressContainer = document.querySelector('#loading-screen');
 
-    loadManager.onLoad = function() {
+    loadManager.onLoad = function () {
         console.log('loaded');
         progressContainer.style.display = 'none';
     };
@@ -80,20 +84,21 @@ function loadScene() {
     scene.add(ambientLight);
 
     atmosphereVxShader = loadShader('../shaders/vxAtmosphere.glsl');
-    atmosphereFxShader = loadShader('../shaders/fsAtmosphere.glsl');
-    let radius
-    let precision
+    let radius;
+    let precision;
 
-    if (Math.round(Math.random()) == 1) {
+    if (isShowingBlackMatter) {
+        atmosphereFxShader = loadShader('../shaders/fsAtmosphere.glsl');
         document.querySelector('.progress-bar-container').style.display = 'none';
         vertexPars = loadShader('../shaders/morphVertex_pars.glsl');
         vertexMain = loadShader('../shaders/morphVertex_main.glsl');
         fragmentPars = loadShader('../shaders/morphFrag_pars.glsl');
         fragmentMain = loadShader('../shaders/morphFrag_main.glsl');
         sphereMaterial = loadBlackMatterMaterial();
-        radius = 4
-        precision = 75
+        radius = 4;
+        precision = 75;
     } else {
+        atmosphereFxShader = loadShader('../shaders/fsEarthAtmosphere.glsl');
         vertexShader = loadShader('../shaders/vxEarth.glsl');
         fragmentShader = loadShader('../shaders/fsEarth.glsl');
         let currentTime = new Date();
@@ -102,8 +107,8 @@ function loadScene() {
         } else {
             sphereMaterial = loadEarthMaterial('../images/Earth.jpg', textureLoader);
         }
-        radius = 6
-        precision = 30
+        radius = 6;
+        precision = 30;
     }
 
     sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(radius, precision), sphereMaterial);
@@ -208,10 +213,10 @@ function loadShader(url) {
         async: false,
         url: url,
         datatype: 'text',
-        success: function(data) {
+        success: function (data) {
             shader = data;
         },
-        error: function() {
+        error: function () {
             console.error('Error al cargar el shader');
         },
     });
@@ -221,13 +226,19 @@ function loadShader(url) {
 function randomColor() {
     return new THREE.Color(Math.random(), Math.random(), Math.random());
 }
-
 function update() {
     if (sphere) {
         sphere.rotation.y += 0.001;
         if (sphereMaterial.userData.shader && sphereMaterial.userData.shader.uniforms)
             sphereMaterial.userData.shader.uniforms.uTime.value = clock.getElapsedTime() * 0.07;
         if (atmosphere.material) atmosphere.material.uniforms.uTime.value = clock.getElapsedTime();
+
+        if (isShowingBlackMatter) {
+            scale += 0.001;
+            let sinScale = 0.75 + Math.cos(Math.sin(scale));
+            atmosphere.scale.set(0.15 + sinScale, 0.15 + sinScale, 0.15 + sinScale);
+            sphere.scale.set(sinScale, sinScale, sinScale);
+        }
     }
     gsap.to(group.rotation, {
         x: mouse.y * 0.3,
