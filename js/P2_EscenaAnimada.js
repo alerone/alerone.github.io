@@ -17,6 +17,7 @@ import { GUI } from '../lib/lil-gui.module.min.js'
 import { GLTFLoader } from '../lib/GLTFLoader.module.js'
 import * as THREE from '../lib/three.module.js'
 import { OrbitControls } from '../lib/OrbitControls.module.js'
+import { TWEEN } from '../lib/tween.module.min.js'
 
 // Variables de consenso
 let renderer, scene, camera
@@ -54,10 +55,11 @@ var atmosphereFxShader = $.ajax({
 
 let pentagon
 let groupFiguras = new THREE.Object3D()
-let mixer, animations, activeAction
+const angulos = [0, (2 * Math.PI) / 5, (4 * Math.PI) / 5, (6 * Math.PI) / 5, (8 * Math.PI) / 5]
 let gui
-let step = 0
 let options
+let figuras
+let material, materialGeom, materialSuelo
 
 // Acciones
 init()
@@ -99,13 +101,13 @@ function loadScene() {
     scene.add(ambientLight)
 
     // Material que da color según la normal
-    const material = new THREE.MeshNormalMaterial()
+    material = new THREE.MeshNormalMaterial()
 
     // Material para el suelo
-    const materialSuelo = new THREE.MeshBasicMaterial({ color: 'yellow', wireframe: true })
+    materialSuelo = new THREE.MeshBasicMaterial({ color: 'yellow', wireframe: true })
 
     // Material para el pentagono
-    const materialGeom = new THREE.MeshBasicMaterial({ color: 0x282740 })
+    materialGeom = new THREE.MeshBasicMaterial({ color: 0x282740 })
 
     // Material para el globo terráqueo
     var earthMaterial = new THREE.ShaderMaterial({
@@ -132,7 +134,7 @@ function loadScene() {
     // Cargador de modelos GLTF
     const glloader = new GLTFLoader()
     // Figuras que se añaden encima del pentágono
-    const figuras = [
+    figuras = [
         new THREE.OctahedronGeometry(0.7),
         new THREE.CylinderGeometry(0.5, 0.5, 1, 64),
         new THREE.TorusKnotGeometry(10, 3, 64, 8, 15, 3),
@@ -151,7 +153,7 @@ function loadScene() {
     for (let i = 0; i < 10000; i++) {
         const x = (Math.random() - 0.5) * 2000
         const y = (Math.random() - 0.5) * 2000
-        const z = (Math.random() - 0.5) * 2000 + 150
+        const z = (Math.random() - 0.5) * 2000
         starVertices.push(x, y, z)
     }
 
@@ -161,7 +163,6 @@ function loadScene() {
     scene.add(stars)
 
     const radio = 3 // Reducido para que entren bien en la escena
-    const angulos = [0, (2 * Math.PI) / 5, (4 * Math.PI) / 5, (6 * Math.PI) / 5, (8 * Math.PI) / 5]
 
     // Un pentágono no es más que un círculo con pocos 5 polígonos
     const pentagonoGeom = new THREE.CircleGeometry(radio, 5)
@@ -169,6 +170,7 @@ function loadScene() {
     pentagon.translateY = 0.5
     pentagon.rotation.x = rotacion
     pentagon.add(new THREE.AxesHelper(3))
+    pentagon.name = 'pentagon'
 
     // Bucle que itera sobre las figuras para añadir las coordenadas e instanciarlas en el FigureGroup
     for (let i = 0; i < 5; i++) {
@@ -194,11 +196,11 @@ function loadScene() {
     // Utilizamos el glloader para cargar el giorno bailarín
     glloader.load(
         'models/giornoAnimations.glb',
-        function (gltf) {
+        function(gltf) {
             scene.add(gltf.scene)
         },
         undefined,
-        function (error) {
+        function(error) {
             console.error(error)
         }
     )
@@ -209,6 +211,30 @@ function loadScene() {
 
     scene.add(pentagon)
     scene.add(groupFiguras)
+}
+
+function moveFigures() {
+    // Bucle que itera sobre las figuras para añadir las coordenadas e instanciarlas en el FigureGroup
+    const radio = options.radio
+    for (let i = 0; i < 5; i++) {
+        const x = radio * Math.cos(angulos[i])
+        const z = radio * Math.sin(angulos[i])
+        let figura = groupFiguras.children[i]
+
+        figura.position.set(x, 1, z)
+    }
+    scene.remove(scene.getObjectByName('pentagon'))
+    const pentagonoGeom = new THREE.CircleGeometry(radio, 5)
+    pentagon = new THREE.Mesh(pentagonoGeom, materialGeom)
+    pentagon.translateY = 0.5
+    pentagon.rotation.x = -Math.PI / 2
+    pentagon.add(new THREE.AxesHelper(3))
+    pentagon.name = 'pentagon'
+    scene.add(pentagon)
+}
+
+function animateFigures() {
+    console.log('hola')
 }
 
 // Helper para cambiar entre las animaciones en base al índice en la lista animations
@@ -224,14 +250,21 @@ function loadGUI() {
     gui = new GUI()
     options = {
         mensaje: 'Soy un mensaje',
-        radio: 5.0,
-        animate: true,
+        radio: 3.0,
+        animate: animateFigures,
         speed: 25.0,
         wireframe: false,
     }
+
     const folder = gui.addFolder('Opciones Rechulonas')
     folder.add(options, 'mensaje').name('Aplicacion')
-    folder.add(options, 'radio', 0, 0, 0)
+    folder.add(options, 'radio', 1, 5, 0.1).onChange(moveFigures)
+    folder.add(options, 'wireframe').onChange(function(e) {
+        groupFiguras.children.forEach((fig) => {
+            if (fig.material) fig.material.wireframe = e
+        })
+    })
+    folder.add(options, 'animate')
 }
 
 function update(delta) {
