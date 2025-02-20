@@ -234,7 +234,16 @@ function moveFigures() {
 }
 
 function animateFigures() {
-    console.log('hola')
+    groupFiguras.children.forEach((figura) => {
+        const figx = figura.position.x
+        const figy = figura.position.y
+        const figz = figura.position.z
+        new TWEEN.Tween(figura.position)
+            .to({ x: [figx, figx], y: [3, figy], z: [figz, figz] }, 2000)
+            .interpolation(TWEEN.Interpolation.Bezier)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .start()
+    })
 }
 
 // Helper para cambiar entre las animaciones en base al índice en la lista animations
@@ -271,6 +280,7 @@ function update(delta) {
     /*******************
      * TO DO: Actualizar tween
      *******************/
+    TWEEN.update(delta)
 }
 
 function render(delta) {
