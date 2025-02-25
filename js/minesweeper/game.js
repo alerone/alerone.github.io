@@ -22,6 +22,7 @@ let userPosition, mousePosition
 mousePosition = new THREE.Vector2()
 
 let minesweeper
+let inGame = false
 
 let raycaster, intersects
 
@@ -107,14 +108,14 @@ function init() {
             const textMesh = new THREE.Mesh(textGeometry, textMaterial)
             textMine = textMesh
 
-            board.mines.forEach((tileIndex) => {
-                const textClone = textMine.clone()
-                const gridPos = transformToGrid(tileIndex.row, tileIndex.col, board.dimension)
-                textClone.position.set(gridPos.gridX - 0.25, 0.01, gridPos.gridZ + 0.25)
-                textClone.rotateX(-Math.PI / 2)
-
-                scene.add(textClone)
-            })
+            //board.mines.forEach((tileIndex) => {
+            //    const textClone = textMine.clone()
+            //    const gridPos = transformToGrid(tileIndex.row, tileIndex.col, board.dimension)
+            //    textClone.position.set(gridPos.gridX - 0.25, 0.01, gridPos.gridZ + 0.25)
+            //    textClone.rotateX(-Math.PI / 2)
+            //
+            //    scene.add(textClone)
+            //})
         }
     )
 
@@ -312,6 +313,7 @@ window.addEventListener('mousemove', function(e) {
 })
 
 window.addEventListener('mousedown', (event) => {
+    if (!inGame) return
     if (event.button === 2) {
         event.preventDefault()
         const matrixPos = transformToMatrix(
@@ -349,13 +351,21 @@ window.addEventListener('dblclick', () => {
         board.dimension
     )
     if (intersects.length > 0) {
+        let curVal = board.getTileValue(matrixPos.row, matrixPos.col)
+        while (!inGame) {
+            curVal = board.getTileValue(matrixPos.row, matrixPos.col)
+            if (curVal != BLANK) {
+                board = new Board(board.dimension)
+            } else {
+                inGame = true
+            }
+        }
         document.body.style.cursor = 'default'
         if (
             board.isDiscovered(matrixPos.row, matrixPos.col) ||
             board.isMarked(matrixPos.row, matrixPos.col)
         )
             return
-        const curVal = board.getTileValue(matrixPos.row, matrixPos.col)
 
         removeButton(matrixPos.row, matrixPos.col)
 
