@@ -73,6 +73,7 @@ function init() {
         antialias: true,
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.domElement.addEventListener('dblclick', animateOnClick)
     /*******************
      * TO DO: Completar el motor de render y el canvas
      *******************/
@@ -195,8 +196,9 @@ function loadScene() {
 
     // Utilizamos el glloader para cargar el giorno bailarín
     glloader.load(
-        'models/giornoAnimations.glb',
+        'models/robota/scene.gltf',
         function(gltf) {
+            gltf.scene.name = 'giorno'
             scene.add(gltf.scene)
         },
         undefined,
@@ -234,6 +236,7 @@ function moveFigures() {
 }
 
 function animateFigures() {
+    let animationDelay = 0
     groupFiguras.children.forEach((figura) => {
         const figx = figura.position.x
         const figy = figura.position.y
@@ -242,8 +245,36 @@ function animateFigures() {
             .to({ x: [figx, figx], y: [3, figy], z: [figz, figz] }, 2000)
             .interpolation(TWEEN.Interpolation.Bezier)
             .easing(TWEEN.Easing.Bounce.Out)
+            .delay(animationDelay)
             .start()
+        animationDelay += 500
     })
+}
+
+function animateOnClick() {
+    let x = event.clientX
+    let y = event.clientY
+    x = (x / window.innerWidth) * 2 - 1
+    y = -(y / window.innerHeight) * 2 + 1
+
+    const rayo = new THREE.Raycaster()
+    rayo.setFromCamera(new THREE.Vector2(x, y), camera)
+    const giorno = scene.getObjectByName('giorno')
+    let intersecciones = rayo.intersectObjects(giorno.children, true)
+    console.log(intersecciones)
+    if (intersecciones.length > 0) {
+        const gioX = giorno.position.x
+        const gioZ = giorno.position.z
+        const gioY = giorno.position.y
+
+        console.log(giorno.position)
+
+        new TWEEN.Tween(giorno.position)
+            .to({ x: [gioX, gioX], y: [3, gioY], z: [gioZ, gioZ] }, 2000)
+            .interpolation(TWEEN.Interpolation.Bezier)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .start()
+    }
 }
 
 // Helper para cambiar entre las animaciones en base al índice en la lista animations

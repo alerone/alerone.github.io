@@ -69,7 +69,7 @@ function init() {
     }
 
     gui.add(options, 'speed', 0, 100)
-    gui.add(options, 'wireframe').onChange(function (e) {
+    gui.add(options, 'wireframe').onChange(function(e) {
         groupFiguras.children.forEach((fig) => {
             if (fig.material) fig.material.wireframe = e
         })
@@ -189,7 +189,7 @@ function loadScene() {
     // Utilizamos el glloader para cargar el giorno bailarín
     glloader.load(
         'models/giornoAnimations.glb',
-        function (gltf) {
+        function(gltf) {
             scene.add(gltf.scene)
             console.log('giorno doing a backflip!')
             console.log(gltf)
@@ -211,7 +211,7 @@ function loadScene() {
             }
         },
         undefined,
-        function (error) {
+        function(error) {
             console.error(error)
         }
     )
@@ -266,6 +266,6 @@ function render() {
     renderer.render(scene, camera)
 }
 
-window.addEventListener('resize', function () {
+window.addEventListener('resize', function() {
     renderer.setSize(window.innerWidth, window.innerHeight)
 })

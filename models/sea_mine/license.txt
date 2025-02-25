@@ -1,0 +1,8 @@
+Model Information:
+* title:	Sea Mine
+* source:	https://sketchfab.com/3d-models/sea-mine-cf09e6fcc81744d591487d0fbcb66af8
+* author:	Marcel van Duijn (https://sketchfab.com/MarcelvanDuijn)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
