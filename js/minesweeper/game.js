@@ -92,7 +92,7 @@ function init() {
     const loader = new FontLoader()
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function(font) {
+        function (font) {
             const textGeometry = new TextGeometry('B', {
                 font: font,
                 size: 0.5,
@@ -107,15 +107,6 @@ function init() {
             const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
             const textMesh = new THREE.Mesh(textGeometry, textMaterial)
             textMine = textMesh
-
-            //board.mines.forEach((tileIndex) => {
-            //    const textClone = textMine.clone()
-            //    const gridPos = transformToGrid(tileIndex.row, tileIndex.col, board.dimension)
-            //    textClone.position.set(gridPos.gridX - 0.25, 0.01, gridPos.gridZ + 0.25)
-            //    textClone.rotateX(-Math.PI / 2)
-            //
-            //    scene.add(textClone)
-            //})
         }
     )
 
@@ -141,21 +132,29 @@ function loadMinesweeper() {
     spotLight.shadow.mapSize.height = 128
 
     scene.add(dirLight, spotLight)
-    minesweeper = new THREE.Mesh(
-        new THREE.BoxGeometry(board.dimension, board.dimension, 1),
-        //new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
-        new THREE.MeshPhongMaterial({
-            roughness: 0.3,
-            metalness: 0.5,
-            color: 0x2590d1,
-            side: THREE.DoubleSide,
-        })
-    )
-    minesweeper.position.y = -0.5
 
+    const boardMaterial = new THREE.MeshPhongMaterial({
+        roughness: 0.3,
+        metalness: 0.5,
+        color: 0x2590d1,
+        side: THREE.DoubleSide,
+    })
+    minesweeper = new THREE.Mesh(
+        new THREE.PlaneGeometry(board.dimension, board.dimension),
+        boardMaterial
+        //new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+    )
     minesweeper.rotateX(-Math.PI / 2)
     minesweeper.name = 'minesweeper'
     scene.add(minesweeper)
+
+    const minesweeperBase = new THREE.Mesh(
+        new THREE.BoxGeometry(board.dimension, board.dimension, 1),
+        boardMaterial
+    )
+    minesweeperBase.rotateX(-Math.PI / 2)
+    minesweeperBase.position.y = -0.5
+    scene.add(minesweeperBase)
 
     userPosition = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
@@ -214,14 +213,25 @@ function openArea(row, col) {
     }
 }
 
+function showMines() {
+    board.mines.forEach((tileIndex) => {
+        const textClone = textMine.clone()
+        const gridPos = transformToGrid(tileIndex.row, tileIndex.col, board.dimension)
+        textClone.position.set(gridPos.gridX - 0.25, 0.01, gridPos.gridZ + 0.25)
+        textClone.rotateX(-Math.PI / 2)
+
+        scene.add(textClone)
+    })
+}
+
 function loadModel(modelPath, list) {
     gltfLoader.load(
         modelPath,
-        function(gltf) {
+        function (gltf) {
             list.push(gltf.scene.clone())
         },
         undefined,
-        function(error) {
+        function (error) {
             console.error(error)
         }
     )
@@ -254,7 +264,7 @@ function createCoinGrid(number, row, col) {
     scene.add(coin)
 }
 
-function update() { }
+function update() {}
 
 function render() {
     requestAnimationFrame(render)
@@ -263,13 +273,13 @@ function render() {
     renderer.render(scene, camera)
 }
 
-window.addEventListener('resize', function() {
+window.addEventListener('resize', function () {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
 })
 
-window.addEventListener('mousemove', function(e) {
+window.addEventListener('mousemove', function (e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1
 
@@ -358,6 +368,7 @@ window.addEventListener('dblclick', () => {
                 board = new Board(board.dimension)
             } else {
                 inGame = true
+                //showMines()
             }
         }
         document.body.style.cursor = 'default'
