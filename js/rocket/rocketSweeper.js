@@ -66,11 +66,12 @@ function init() {
 
 function load() {
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.0)
-    dirLight.position.set(0, 10, 5)
+    dirLight.position.set(0, 3, 1)
     dirLight.lookAt(0, 0, 0)
     dirLight.castShadow = true
     dirLight.shadow.mapSize.width = 4096
     dirLight.shadow.mapSize.height = 4096
+
     scene.add(dirLight)
     const boardMaterial = new THREE.MeshPhongMaterial({
         roughness: 0.3,
