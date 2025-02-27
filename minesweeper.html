@@ -6,7 +6,13 @@
 <html lang="es">
     <head>
         <meta charset="utf-8" />
-        <title>Minesweeper</title>
+        <title>Rocket Sweeper</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+            rel="stylesheet"
+        />
         <style>
             body {
                 background-color: black;
@@ -21,9 +27,26 @@
                 text-align: left;
                 z-index: 1;
             }
+            .exo2-font {
+                font-family: 'Exo 2', serif;
+                font-optical-sizing: auto;
+                font-weight: 600;
+                font-style: italic;
+            }
         </style>
+        <link href="tailwind.css" rel="stylesheet" />
     </head>
     <body>
+        <div
+            class="absolute flex flex-col top-4 left-4 bg-white bg-opacity-70 backdrop-blur-sm p-3 rounded-lg shadow-lg select-none"
+        >
+            <h1
+                class="exo2-font text-2xl text-slate-800 border-slate-800 border-b-4 border-solid mb-4"
+            >
+                Marcador Rocket Sweeper 🚀
+            </h1>
+            <h3 id="score" class="exo2-font text-1xl text-slate-800">Puntos: 0</h3>
+        </div>
         <div id="container"></div>
 
         <!-- Este enlace esta recomendado en la web de threejs -->
