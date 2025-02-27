@@ -19,6 +19,7 @@ let board = new Board(10)
 let game = new Game()
 
 let score
+let rocketCount
 
 let textRocket
 
@@ -46,6 +47,8 @@ function init() {
 
     document.getElementById('container').appendChild(renderer.domElement)
     score = document.querySelector('#score')
+    rocketCount = document.getElementById('explosivos')
+    rocketCount.innerText = 'Explosivos: ' + board.nMines
     // Escena
     scene = new THREE.Scene()
     scene.background = new THREE.Color('black')
@@ -295,11 +298,11 @@ function loadModels() {
 function loadModel(modelPath, list) {
     gltfLoader.load(
         modelPath,
-        function(gltf) {
+        function (gltf) {
             list.push(gltf.scene.clone())
         },
         undefined,
-        function(error) {
+        function (error) {
             console.error(error)
         }
     )
@@ -308,7 +311,7 @@ function loadFonts() {
     const loader = new FontLoader()
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function(font) {
+        function (font) {
             const textGeometry = new TextGeometry('B', {
                 font: font,
                 size: 0.5,
@@ -386,6 +389,8 @@ function canStartPlaying(mtrxPosition) {
             showMines()
         }
     }
+
+    rocketCount.innerText = 'Explosivos: ' + board.nMines
     return true
 }
 
