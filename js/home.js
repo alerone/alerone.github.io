@@ -17,7 +17,7 @@ let loadManager, textureLoader
 let scale = 0
 
 let isShowingBlackMatter = false
-//let isShowingBlackMatter = true;
+//let isShowingBlackMatter = true
 
 const mouse = {
     x: undefined,

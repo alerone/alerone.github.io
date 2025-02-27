@@ -1,6 +1,6 @@
 export class Board {
     constructor(dimension) {
-        this.nMines = 25
+        this.nMines = 55
         this.dimension = dimension
         // If fill(new Tile...) the reference to tile is the same in all the array so
         // changes on tile[x] change the value on all tiles...

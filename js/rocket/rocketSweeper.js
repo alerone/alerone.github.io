@@ -8,6 +8,7 @@ import * as SkeletonUtils from '../../lib/SkeletonUtils.min.js'
 import { OrbitControls } from '../../lib/OrbitControls.module.js'
 import { TWEEN } from '../../lib/tween.module.min.js'
 import { createExplosion } from './effects.js'
+import { Game } from './game.js'
 
 /** @type {THREE.WebGLRenderer}*/
 let renderer
@@ -27,7 +28,7 @@ let inGame = false
 let raycaster, intersects
 
 let textMine
-let mineMesh
+let rocketMesh
 let coins = []
 let gltfLoader
 let buttonMesh
@@ -38,6 +39,7 @@ const BLANK = 0
 const MINE = -1
 
 let board = new Board(10)
+let game = new Game()
 
 init()
 loadMinesweeper()
@@ -74,8 +76,8 @@ function init() {
         loadModel(`../../models/coins/${i}_coin.glb`, coins)
     }
 
-    gltfLoader.load('../../models/sea_mine/mine.glb', (gltf) => {
-        mineMesh = gltf.scene.clone()
+    gltfLoader.load('../../models/Rocket/rocket.glb', (gltf) => {
+        rocketMesh = gltf.scene.clone()
     })
 
     gltfLoader.load('../../models/button/button.glb', (gltf) => {
@@ -92,7 +94,7 @@ function init() {
     const loader = new FontLoader()
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function (font) {
+        function(font) {
             const textGeometry = new TextGeometry('B', {
                 font: font,
                 size: 0.5,
@@ -190,6 +192,7 @@ function transformToMatrix(x, z, N) {
 }
 
 function openArea(row, col) {
+    let delay = 0
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
             if (i == 0 && j == 0) continue
@@ -201,11 +204,12 @@ function openArea(row, col) {
                 board.showTile(nextRow, nextCol)
                 removeButton(nextRow, nextCol)
                 const nextVal = board.getTileValue(nextRow, nextCol)
-                if (nextVal != -1) {
-                    createCoinGrid(nextVal, nextRow, nextCol)
+                if (nextVal != MINE) {
+                    createCoinGrid(nextVal, nextRow, nextCol, delay)
+                    delay += 100
                 }
 
-                if (nextVal == 0) {
+                if (nextVal == BLANK) {
                     openArea(nextRow, nextCol)
                 }
             }
@@ -227,11 +231,11 @@ function showMines() {
 function loadModel(modelPath, list) {
     gltfLoader.load(
         modelPath,
-        function (gltf) {
+        function(gltf) {
             list.push(gltf.scene.clone())
         },
         undefined,
-        function (error) {
+        function(error) {
             console.error(error)
         }
     )
@@ -254,32 +258,79 @@ function removeButton(row, col) {
     scene.remove(button)
 }
 
-function createCoinGrid(number, row, col) {
+function createCoinGrid(number, row, col, delay) {
     if (coins.length <= 0) return
-    if (number == 0) return
+    if (number == BLANK) return
     const coin = coins[number - 1].clone()
     const matrixPos = transformToGrid(row, col, board.dimension)
     coin.position.set(matrixPos.gridX, 0.01, matrixPos.gridZ)
     coin.scale.set(0.125, 0.125, 0.125)
-    scene.add(coin)
+    setTimeout(() => {
+        scene.add(coin)
+    }, delay)
+    animateCoin(coin, delay)
+    game.addPoints(number * 10)
 }
 
-function update() {}
+function animateCoin(coin, delay) {
+    const duration = 500
+    const positionTween = new TWEEN.Tween(coin.position)
+        .to({ y: 1.5 }, duration) // Move up 3 units over 1 second
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .delay(delay)
+        .onComplete(() => {
+            // After reaching the peak, fall back down
+            new TWEEN.Tween(coin.position)
+                .to({ y: 0 }, duration)
+                .easing(TWEEN.Easing.Quadratic.In)
+                .start()
+        })
 
-function render() {
+    // Create tween for rotation
+    const rotationTween = new TWEEN.Tween(coin.rotation)
+        .to({ x: Math.PI * 4 }, duration * 2) // Rotate 720 degrees (4π) over 2 seconds
+        .delay(delay)
+        .easing(TWEEN.Easing.Linear.None)
+
+    // Start both tweens simultaneously
+    positionTween.start()
+    rotationTween.start()
+}
+
+function createRocket(position) {
+    const rocket = rocketMesh.clone()
+    rocket.position.copy(position)
+    rocket.position.y = 5
+    rocket.rotateY(-Math.PI / 2)
+    rocket.scale.set(0.3, 0.3, 0.3)
+    scene.add(rocket)
+    new TWEEN.Tween(rocket.position)
+        .to({ x: position.x, y: 0.5, z: position.z }, 500)
+        .easing(TWEEN.Easing.Linear.None)
+        .onComplete(() => {
+            scene.remove(rocket)
+            createExplosion(position.clone(), scene)
+        })
+        .start()
+}
+
+function update(delta) {
+    TWEEN.update(delta)
+}
+
+function render(delta) {
     requestAnimationFrame(render)
-    update()
-    TWEEN.update()
+    update(delta)
     renderer.render(scene, camera)
 }
 
-window.addEventListener('resize', function () {
+window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
 })
 
-window.addEventListener('mousemove', function (e) {
+window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1
 
@@ -323,7 +374,7 @@ window.addEventListener('mousemove', function (e) {
 })
 
 window.addEventListener('mousedown', (event) => {
-    if (!inGame) return
+    if (!game.isPlaying()) return
     if (event.button === 2) {
         event.preventDefault()
         const matrixPos = transformToMatrix(
@@ -360,15 +411,16 @@ window.addEventListener('dblclick', () => {
         userPosition.position.z,
         board.dimension
     )
+    console.log(game)
     if (intersects.length > 0) {
         let curVal = board.getTileValue(matrixPos.row, matrixPos.col)
-        while (!inGame) {
+        while (!game.isPlaying()) {
             curVal = board.getTileValue(matrixPos.row, matrixPos.col)
             if (curVal != BLANK) {
                 board = new Board(board.dimension)
             } else {
-                inGame = true
-                //showMines()
+                game.start()
+                showMines()
             }
         }
         document.body.style.cursor = 'default'
@@ -386,18 +438,12 @@ window.addEventListener('dblclick', () => {
                 break
 
             case MINE: {
-                const mine = mineMesh.clone()
-                mine.position.copy(userPosition.position)
-                mine.position.y = 0.8
-                mine.scale.set(0.3, 0.3, 0.3)
-                createExplosion(userPosition.position.clone(), scene)
-                scene.add(mine)
-
+                createRocket(userPosition.position)
                 board.showTile(matrixPos.row, matrixPos.col)
                 break
             }
             default:
-                createCoinGrid(curVal, matrixPos.row, matrixPos.col)
+                createCoinGrid(curVal, matrixPos.row, matrixPos.col, 0)
                 board.showTile(matrixPos.row, matrixPos.col)
                 break
         }
