@@ -453,8 +453,9 @@ function discoveredARocket(row, col) {
 function loadModels() {
     gltfLoader = new GLTFLoader()
     for (let i = 1; i <= 8; i++) {
-        loadModel(`../../models/coins/${i}_coin.glb`, coinMeshes)
+        loadModel(`../../models/coins/${i}_coin.glb`, coinMeshes, `coin-${i}`)
     }
+    console.log(coinMeshes)
 
     gltfLoader.load('../../models/Rocket/rocket.glb', (gltf) => {
         rocketMesh = gltf.scene.clone()
@@ -472,10 +473,11 @@ function loadModels() {
     })
 }
 
-function loadModel(modelPath, list) {
+function loadModel(modelPath, list, name) {
     gltfLoader.load(
         modelPath,
         function (gltf) {
+            gltf.scene.name = name
             list.push(gltf.scene.clone())
         },
         undefined,
