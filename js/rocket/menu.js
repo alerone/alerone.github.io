@@ -13,6 +13,12 @@ export class Menu {
         this.getMarcador()
         this.getButtons()
         this.initEvents()
+        this.showingMenu = true
+    }
+
+    reset(board, game) {
+        this.board = board
+        this.game = game
     }
 
     initEvents() {
@@ -53,15 +59,25 @@ export class Menu {
             [this.btnHard, 'purple'],
         ])
         this.count = 0
-        console.log()
         this.btnBack = document.querySelector('#btn-back')
+    }
+
+    isShowingMenu() {
+        return this.showingMenu
     }
 
     playEvent() {
         this.gameMenu.classList.add('hidden')
+        console.log(this.game)
         this.game.start()
         // actualiza la dificultad que se puede haber cambiado con los botones de dificultad
         this.board.updateDifficulty()
+        this.showingMenu = false
+    }
+
+    showMenu() {
+        this.gameMenu.classList.remove('hidden')
+        this.showingMenu = true
     }
 
     diffMenuEvent() {
@@ -81,7 +97,6 @@ export class Menu {
         this.nRockets.innerText = 'Explosivos: ' + this.board.nMines
     }
     toggleCreativeEvent() {
-        console.log(this.btnCreative)
         this.board.toggleCreative()
         const isCreative = this.board.creative
         const isCreativeToString = isCreative ? 'Sí' : 'No'

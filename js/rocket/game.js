@@ -14,7 +14,9 @@ export class Game {
     }
 
     start() {
+        this.endState = ''
         this.state = 'start'
+        this.points = 0
     }
 
     startPlaying() {

@@ -10,7 +10,10 @@ export class Board {
         this.tiles = new Array(dimension * dimension).fill(null).map(() => new Tile(null))
         this.mines = []
 
-        if (creative) this.creative = true
+        this.discovered = 0
+        this.marked = 0
+
+        if (creative) this.creative = creative
         else this.creative = false
 
         if (difficulty) this.difficulty = difficulty
@@ -72,14 +75,30 @@ export class Board {
         return this.tiles[row * this.dimension + col].state == 'marked'
     }
 
-    showTile(row, col) {
+    discoverTile(row, col) {
+        if (!this.isMine(row, col) && !this.isDiscovered(row, col)) this.discovered++
         this.tiles[row * this.dimension + col].state = 'discovered'
+    }
+
+    hasWon() {
+        const realDimension = this.dimension * this.dimension
+        return realDimension - this.nMines == this.discovered
+    }
+
+    getGameRockets() {
+        return this.nMines - this.marked
     }
 
     toggleMarkTile(row, col) {
         const current = this.tiles[row * this.dimension + col].state
-        if (current === 'marked') this.tiles[row * this.dimension + col].state = 'undiscovered'
-        if (current === 'undiscovered') this.tiles[row * this.dimension + col].state = 'marked'
+        if (current === 'marked') {
+            this.marked--
+            this.tiles[row * this.dimension + col].state = 'undiscovered'
+        }
+        if (current === 'undiscovered') {
+            this.marked++
+            this.tiles[row * this.dimension + col].state = 'marked'
+        }
     }
 
     setTile(row, col, value) {
@@ -137,7 +156,6 @@ function setMines(board) {
             row = Math.floor(Math.random() * board.dimension)
             col = Math.floor(Math.random() * board.dimension)
         } while (board.getTileValue(row, col) == -1)
-        // -1 is a Mine
         board.setTile(row, col, -1)
         board.mines.push({ row, col })
     }
