@@ -42,7 +42,7 @@ let textLost
 let textWin
 
 let rocketMesh
-let coinMeshes = []
+let coinMeshes = new Map()
 let gltfLoader
 let buttonMesh
 let flagMesh
@@ -321,9 +321,9 @@ function removeButton(row, col) {
 }
 
 function createCoinGrid(number, row, col, delay) {
-    if (coinMeshes.length <= 0) return
+    if (coinMeshes.size <= 0) return
     if (number == BLANK) return
-    const coin = coinMeshes[number - 1].clone()
+    const coin = coinMeshes.get(`coin-${number}`).clone()
     const matrixPos = transformToGrid(row, col, board.dimension)
     coin.scale.set(0.125, 0.125, 0.125)
     coin.position.set(matrixPos.x, 0.51, matrixPos.z)
@@ -455,7 +455,6 @@ function loadModels() {
     for (let i = 1; i <= 8; i++) {
         loadModel(`../../models/coins/${i}_coin.glb`, coinMeshes, `coin-${i}`)
     }
-    console.log(coinMeshes)
 
     gltfLoader.load('../../models/Rocket/rocket.glb', (gltf) => {
         rocketMesh = gltf.scene.clone()
@@ -473,12 +472,12 @@ function loadModels() {
     })
 }
 
-function loadModel(modelPath, list, name) {
+/**@param {Map} map */
+function loadModel(modelPath, map, key) {
     gltfLoader.load(
         modelPath,
         function (gltf) {
-            gltf.scene.name = name
-            list.push(gltf.scene.clone())
+            map.set(key, gltf.scene)
         },
         undefined,
         function (error) {
