@@ -9,6 +9,7 @@ import { OrbitControls } from '../../lib/OrbitControls.module.js'
 import { TWEEN } from '../../lib/tween.module.min.js'
 import { createExplosion } from './effects.js'
 import { Game } from './game.js'
+import { Menu } from './menu.js'
 
 let renderer, scene, camera, raycaster
 let rocketSweeper, rocketSweeperBase, userPosition
@@ -17,6 +18,8 @@ let mousePosition = { x: 0, y: 0 }
 
 let board = new Board(10)
 let game = new Game()
+
+new Menu(game, board)
 
 let score
 let rocketCount
@@ -131,8 +134,14 @@ function addToBoard(figure, position) {
 }
 
 function transformToGrid(row, col, N) {
-    let x = col - Math.floor(N / 2) + 0.5
-    let z = Math.floor(N / 2) - row - 1 + 0.5
+    let addX = 0.5
+    let addZ = 0.5
+    if (N % 2 != 0) {
+        addX = 1
+        addZ = 0
+    }
+    let x = col - Math.round(N / 2) + addX
+    let z = Math.round(N / 2) - row - 1 + addZ
     z = -z
     return { x, z }
 }
@@ -144,8 +153,14 @@ function transformToMatrix(x, z, N) {
     return { row, col }
 }
 
-function restart(dimension) {
+function restart(dimension, difficulty, creative) {
     board = new Board(dimension)
+    console.log('diff', board.difficultyToString(difficulty))
+    if (difficulty) {
+        board.setDifficulty(difficulty)
+        board.updateDifficulty()
+    }
+    if (creative) board.setCreative(creative)
     game = new Game()
 }
 
@@ -159,6 +174,7 @@ function updatePoints() {
 }
 
 function showMines() {
+    if (!board.creative) return
     board.mines.forEach((mine) => {
         const textClone = textRocket.clone()
         const gridPos = transformToGrid(mine.row, mine.col, board.dimension)
@@ -166,6 +182,7 @@ function showMines() {
         textClone.rotateX(-Math.PI / 2)
 
         addToBoard(textClone, textClone.position.clone())
+        removeButton(mine.row, mine.col)
     })
 }
 
@@ -207,7 +224,6 @@ function createCoinGrid(number, row, col, delay) {
 
 function animateCoin(coin, delay) {
     const duration = 500
-    console.log(coin.position)
     const positionTween = new TWEEN.Tween(coin.position)
         .to({ y: 1.5 }, duration) // Move up 3 units over 1 second
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -299,11 +315,11 @@ function loadModels() {
 function loadModel(modelPath, list) {
     gltfLoader.load(
         modelPath,
-        function (gltf) {
+        function(gltf) {
             list.push(gltf.scene.clone())
         },
         undefined,
-        function (error) {
+        function(error) {
             console.error(error)
         }
     )
@@ -312,8 +328,8 @@ function loadFonts() {
     const loader = new FontLoader()
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function (font) {
-            const textGeometry = new TextGeometry('B', {
+        function(font) {
+            const textGeometry = new TextGeometry('R', {
                 font: font,
                 size: 0.5,
                 height: 0.2,
@@ -338,6 +354,7 @@ function resizeWindow() {
 }
 
 function dblClick() {
+    if (!game.canPlay()) return
     if (intersects.length <= 0) return
     const matrixPos = transformToMatrix(
         userPosition.position.x,
@@ -345,7 +362,6 @@ function dblClick() {
         board.dimension
     )
     if (currTileDisOrMarked(matrixPos)) return
-    console.log(game)
     if (!canStartPlaying(matrixPos)) return
     const curVal = board.getTileValue(matrixPos.row, matrixPos.col)
     document.body.style.cursor = 'default'
@@ -379,14 +395,15 @@ function currTileDisOrMarked(mtrxPosition) {
 }
 
 function canStartPlaying(mtrxPosition) {
-    if (game.end != '') return false
+    if (!game.canPlay()) return false
     let curVal = board.getTileValue(mtrxPosition.row, mtrxPosition.col)
+    console.log(board.difficultyToString(board.difficulty))
     while (!game.isPlaying()) {
         curVal = board.getTileValue(mtrxPosition.row, mtrxPosition.col)
         if (curVal != BLANK) {
-            restart(board.dimension)
+            restart(board.dimension, board.difficulty, board.creative)
         } else {
-            game.start()
+            game.startPlaying()
             showMines()
         }
     }
@@ -458,13 +475,14 @@ function moveOnBoard(e) {
 
         userPosition.position.set(highlightPos.x, 0.51, highlightPos.z)
         const currBtnLabel = `button-${currMatrixPosition.row}-${currMatrixPosition.col}`
+        const currIsMine = board.isMine(currMatrixPosition.row, currMatrixPosition.col)
         const currBtn = rocketSweeperBase.getObjectByName(currBtnLabel)
         if (currBtn) {
-            document.body.style.cursor = 'pointer'
+            document.body.style.cursor = game.canPlay() ? 'pointer' : 'default'
             hoverBtn(true, currBtn)
-        } else {
-            document.body.style.cursor = 'default'
-        }
+        } else if (board.creative && currIsMine) {
+            document.body.style.cursor = game.canPlay() ? 'pointer' : 'default'
+        } else document.body.style.cursor = 'default'
         if (prevBtn && currBtnLabel !== prevBtnLabel) {
             hoverBtn(false, prevBtn)
         }

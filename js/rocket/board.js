@@ -1,13 +1,67 @@
+export const EASY = 1
+export const MEDIUM = 2
+export const HARD = 3
 export class Board {
-    constructor(dimension) {
+    constructor(dimension, difficulty, creative) {
         this.nMines = 25
         this.dimension = dimension
         // If fill(new Tile...) the reference to tile is the same in all the array so
         // changes on tile[x] change the value on all tiles...
         this.tiles = new Array(dimension * dimension).fill(null).map(() => new Tile(null))
         this.mines = []
+
+        if (creative) this.creative = true
+        else this.creative = false
+
+        if (difficulty) this.difficulty = difficulty
+        else this.difficulty = EASY
+
+        setNMines(this)
         setMines(this)
         setCountingMines(this)
+    }
+
+    setDifficulty(diff) {
+        this.difficulty = diff
+        setNMines(this)
+    }
+
+    updateDifficulty() {
+        setMines(this)
+        setCountingMines(this)
+    }
+
+    difficultyToString() {
+        switch (this.difficulty) {
+            case EASY:
+                return 'Fácil'
+            case MEDIUM:
+                return 'Medio'
+            case HARD:
+                return 'Difícil'
+            default:
+                return 'Fácil'
+        }
+    }
+
+    isDiffEasy() {
+        return this.difficulty == EASY
+    }
+
+    isDiffMedium() {
+        return this.difficulty == MEDIUM
+    }
+
+    isDiffHard() {
+        return this.difficulty == HARD
+    }
+
+    toggleCreative() {
+        this.creative = !this.creative
+    }
+
+    setCreative(creative) {
+        this.creative = creative
     }
 
     isDiscovered(row, col) {
@@ -49,6 +103,26 @@ export class Tile {
     constructor(value) {
         this.value = value
         this.state = 'undiscovered'
+    }
+}
+
+/**
+ * Initialize board rockets based on difficulty
+ *@param{Board}board
+ */
+function setNMines(board) {
+    switch (board.difficulty) {
+        case EASY:
+            board.nMines = Math.floor(0.1 * (board.dimension * board.dimension))
+            break
+        case MEDIUM:
+            board.nMines = Math.floor(0.25 * (board.dimension * board.dimension))
+            break
+        case HARD:
+            board.nMines = Math.floor(0.35 * (board.dimension * board.dimension))
+            break
+        default:
+            board.nMines = Math.floor(0.15 * (board.dimension * board.dimension))
     }
 }
 

@@ -1,16 +1,41 @@
 export class Game {
     constructor() {
         this.points = 0
-        this.playing = false
-        this.end = ''
+        this.state = 'stop'
+        this.endState = ''
+    }
+
+    stop() {
+        this.state = 'stop'
+    }
+
+    canPlay() {
+        return this.state != 'stop' && this.state != 'gameOver'
     }
 
     start() {
-        this.playing = true
+        this.state = 'start'
+    }
+
+    startPlaying() {
+        this.state = 'playing'
+        this.endState = ''
     }
 
     isPlaying() {
-        return this.playing
+        return this.state == 'playing'
+    }
+
+    isGameOver() {
+        return this.state == 'gameOver'
+    }
+
+    hasLost() {
+        return this.endState == 'lost'
+    }
+
+    hasWon() {
+        this.endState == 'won'
     }
 
     addPoints(points) {
@@ -18,12 +43,12 @@ export class Game {
     }
 
     lose() {
-        this.end = 'lost'
-        this.playing = false
+        this.endState = 'lost'
+        this.state = 'gameOver'
     }
 
     win() {
-        this.end = 'win'
-        this.playing = false
+        this.endState = 'won'
+        this.state = 'gameOver'
     }
 }
