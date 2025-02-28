@@ -603,7 +603,8 @@ function rightMouseDown(event) {
         )
         const button = scene.getObjectByName(`button-${matrixPos.row}-${matrixPos.col}`)
         const flag = scene.getObjectByName(`flag-${matrixPos.row}-${matrixPos.col}`)
-        if (button || flag) toggleFlag(matrixPos)
+        if (button || flag || (board.creative && board.isMine(matrixPos.row, matrixPos.col)))
+            toggleFlag(matrixPos)
     }
 }
 
