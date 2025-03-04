@@ -176,12 +176,19 @@ function setLights() {
     const ambientLight = new THREE.AmbientLight(0x222244, 0.4)
     scene.add(ambientLight)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
     directionalLight.position.set(10, 20, 10)
     directionalLight.castShadow = true
     directionalLight.shadow.mapSize.width = 2048
     directionalLight.shadow.mapSize.height = 2048
     scene.add(directionalLight)
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1)
+    directionalLight2.position.set(0, 10, -10000)
+    directionalLight2.castShadow = true
+    directionalLight2.shadow.mapSize.width = 2048
+    directionalLight2.shadow.mapSize.height = 2048
+    scene.add(directionalLight2)
 
     const pointLight1 = new THREE.PointLight(0xffddaa, 0.8, 100)
     pointLight1.position.set(-150, 100, 50)
@@ -242,13 +249,21 @@ function win() {
         boardView.addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
     }, 1500)
     const textObj = showText(textWinMesh)
-    moveCamera(new THREE.Vector3(0, 5, 12), new THREE.Vector3(0, 5, 0))
+    moveCamera(
+        new THREE.Vector3(0, tableBox.max.y + 5, 12),
+        new THREE.Vector3(0, tableBox.max.y + 5, 0),
+        500
+    )
     setTimeout(() => {
         boardView.deleteFromBoard(pantalla)
         boardView.deleteFromBoard(textObj)
         restartBoard()
         menu.showMenu()
-        moveCamera(new THREE.Vector3(0, 7, 7), new THREE.Vector3(0, 1, 0), 1000)
+        moveCamera(
+            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+            1500
+        )
     }, 10000)
 }
 
@@ -272,13 +287,21 @@ function lose() {
         boardView.addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
     }, 1500)
     const textObj = showText(textLostMesh)
-    moveCamera(new THREE.Vector3(0, 5, 12), new THREE.Vector3(0, 5, 0))
+    moveCamera(
+        new THREE.Vector3(0, tableBox.max.y + 5, 12),
+        new THREE.Vector3(0, tableBox.max.y + 5, 0),
+        500
+    )
     setTimeout(() => {
         boardView.deleteFromBoard(pantalla)
         boardView.deleteFromBoard(textObj)
         restartBoard()
         menu.showMenu()
-        moveCamera(new THREE.Vector3(0, 7, 7), new THREE.Vector3(0, 1, 0), 2000)
+        moveCamera(
+            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+            1500
+        )
     }, 7000)
 }
 
@@ -308,10 +331,6 @@ function moveCamera(moveTo, lookAt, duration) {
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() => {
             camera.lookAt(lookAt)
-        })
-        .onComplete(() => {
-            orbit.target.set(lookAt)
-            orbit.update()
         })
     moveAnim.start()
 }
@@ -428,12 +447,18 @@ function loadModels() {
 
         camera.position.set(0, tableTopY + 7, 10)
         orbit = new OrbitControls(camera, renderer.domElement)
+        orbit.update()
         orbit.target.set(0, tableTopY, 0)
-        camera.lookAt(0, tableTopY, 0)
 
         const flag = flagMeshes.get('bowser')
 
         if (flag) boardView.setFlagMesh(flag)
+
+        moveCamera(
+            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+            1500
+        )
 
         loadTextures()
     })

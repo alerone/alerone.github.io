@@ -225,7 +225,7 @@ export class BoardView {
             .to({ x: boardPosition.x, y: 0.5, z: boardPosition.z }, 500)
             .easing(TWEEN.Easing.Linear.None)
             .onComplete(() => {
-                createExplosion(rocket.position.clone(), this.scene)
+                createExplosion(rocket.position.clone(), base)
                 this.deleteFromBoard(rocket)
             })
             .start()
