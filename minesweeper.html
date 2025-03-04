@@ -14,6 +14,11 @@ Plantilla de carga de aplicaciones Threejs
             rel="stylesheet"
         />
         <style>
+            @property --angle {
+                syntax: '<angle>';
+                initial-value: 0deg;
+                inherits: false;
+            }
             body {
                 background-color: black;
                 margin: 0px;
@@ -33,12 +38,50 @@ Plantilla de carga de aplicaciones Threejs
                 font-weight: 600;
                 font-style: italic;
             }
+
+            .card::after,
+            .card::before {
+                --angle: 0deg;
+                content: '';
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                background-image: conic-gradient(
+                    from var(--angle),
+                    transparent 70%,
+                    #ff4545,
+                    #00ff99,
+                    #006aff,
+                    #ff0095,
+                    #ff4545
+                );
+                top: 50%;
+                left: 50%;
+                translate: -50% -50%;
+                z-index: -1;
+                padding: 3px;
+                border-radius: 10px;
+                animation: 3s spin linear infinite;
+            }
+            .card::before {
+                filter: blur(1.5rem);
+                opacity: 0.5;
+            }
+
+            @keyframes spin {
+                from {
+                    --angle: 0deg;
+                }
+                to {
+                    --angle: 360deg;
+                }
+            }
         </style>
         <link href="tailwind.css" rel="stylesheet" />
     </head>
     <body>
         <div
-            class="absolute flex flex-col top-4 left-4 bg-white bg-opacity-70 backdrop-blur-sm p-3 rounded-lg shadow-lg select-none"
+            class="card absolute flex flex-col top-4 left-4 bg-white bg-opacity-70 backdrop-blur-sm p-3 rounded-lg shadow-lg select-none"
         >
             <h1
                 class="exo2-font text-2xl text-gray-800 border-gray-800 border-b-4 border-solid mb-4"

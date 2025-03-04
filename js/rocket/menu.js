@@ -94,7 +94,7 @@ export class Menu {
 
         this.board.setDifficulty(diff)
         this.diffLabel.innerText = 'Dificultad: ' + this.board.difficultyToString(diff)
-        this.nRockets.innerText = 'Explosivos: ' + this.board.nMines
+        this.nRockets.innerText = 'Explosivos: ' + this.board.nRockets
     }
     toggleCreativeEvent() {
         this.board.toggleCreative()

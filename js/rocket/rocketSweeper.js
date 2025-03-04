@@ -1,15 +1,16 @@
 import { GUI } from '../../lib/lil-gui.module.min.js'
+import { RGBELoader } from '../../lib/RGBELoader.min.js'
+import { MatrixCoords } from './matrixCoords.js'
 import { FontLoader } from '../../lib/FontLoader.module.js'
 import { TextGeometry } from '../../lib/TextGeometry.module.js'
 import { GLTFLoader } from '../../lib/GLTFLoader.module.js'
 import { Board } from './board.js'
 import * as THREE from '../../lib/three.module.js'
-import * as SkeletonUtils from '../../lib/SkeletonUtils.min.js'
 import { OrbitControls } from '../../lib/OrbitControls.module.js'
 import { TWEEN } from '../../lib/tween.module.min.js'
-import { createExplosion } from './effects.js'
 import { Game } from './game.js'
 import { Menu } from './menu.js'
+import { BoardView } from './boardView.js'
 
 /** @type {THREE.WebGLRenderer}*/
 let renderer
@@ -17,35 +18,36 @@ let renderer
 let scene
 /**@type {THREE.PerspectiveCamera}*/
 let camera
-/**@type {THREE.Raycaster} */
-let raycaster
 
-/**@type {THREE.Mesh} */
-let rocketSweeperBase
+/**@type {OrbitControls}*/
+let orbit
 
-let boardMaterial
+let gui
 
-let rocketSweeper, userPosition
+let userPosition
 let intersects
 let mousePosition = { x: 0, y: 0 }
 
 let board = new Board(10)
 let game = new Game()
 
+/**@type {BoardView}*/
+let boardView
+let table
+let tableBox
+
+let flagMeshes = new Map()
+let flagBase
+
 const menu = new Menu(game, board)
 
-let score
-let rocketCount
+let scoreLabel
+let rocketCountLabel
 
-let textRocket
-let textLost
-let textWin
+let textLostMesh
+let textWinMesh
 
-let rocketMesh
-let coinMeshes = new Map()
 let gltfLoader
-let buttonMesh
-let flagMesh
 
 const BLANK = 0
 const MINE = -1
@@ -62,56 +64,37 @@ function init() {
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.shadowMap.enabled = true
 
     document.getElementById('container').appendChild(renderer.domElement)
-    score = document.querySelector('#score')
-    rocketCount = document.getElementById('explosivos')
-    rocketCount.innerText = 'Explosivos: ' + board.nMines
+    scoreLabel = document.querySelector('#score')
+    rocketCountLabel = document.getElementById('explosivos')
+    rocketCountLabel.innerText = 'Explosivos: ' + board.nRockets
     // Escena
     scene = new THREE.Scene()
-    scene.background = new THREE.Color('black')
 
     // Camara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
     camera.position.set(0, 7, 7)
-
-    const orbit = new OrbitControls(camera, renderer.domElement)
-    orbit.update()
-    camera.lookAt(new THREE.Vector3(0, 1, 0))
-
-    raycaster = new THREE.Raycaster()
 }
 
 function load() {
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0)
-    dirLight.position.set(0, 3, 1)
-    dirLight.lookAt(0, 0, 0)
-    dirLight.castShadow = true
-    dirLight.shadow.mapSize.width = 4096
-    dirLight.shadow.mapSize.height = 4096
+    setLights()
 
-    scene.add(dirLight)
-
-    boardMaterial = new THREE.MeshPhongMaterial({
-        roughness: 0.3,
-        metalness: 0.5,
-        color: 0x2590d1,
-        side: THREE.DoubleSide,
-    })
-
-    rocketSweeperBase = new THREE.Mesh(
-        new THREE.BoxGeometry(board.dimension, board.dimension, 1),
-        boardMaterial
+    userPosition = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshPhongMaterial({ color: 0xb3c8cf, side: THREE.DoubleSide })
     )
-    rocketSweeperBase.geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
-    rocketSweeperBase.position.y = -0.5
-
-    scene.add(rocketSweeperBase)
-
-    initBoardView()
+    userPosition.position.addScalar(0.5)
+    userPosition.position.y = 0.01
+    userPosition.rotateX(-Math.PI / 2)
 
     loadModels()
     loadFonts()
+    loadGUI()
+    loadBackground()
+    createMoon()
+    //createStars()
 }
 
 function update(delta) {
@@ -124,34 +107,10 @@ function render(delta) {
     renderer.render(scene, camera)
 }
 
-function addToBoard(figure, position) {
-    figure.position.set(position.x, position.y + 0.5, position.z)
-    rocketSweeperBase.add(figure)
-}
-
-function transformToGrid(row, col, N) {
-    let addX = 0.5
-    let addZ = 0.5
-    if (N % 2 != 0) {
-        addX = 1
-        addZ = 0
-    }
-    let x = col - Math.round(N / 2) + addX
-    let z = Math.round(N / 2) - row - 1 + addZ
-    z = -z
-    return { x, z }
-}
-
-function transformToMatrix(x, z, N) {
-    const M = Math.floor(N / 2)
-    const col = x + M - 0.5
-    const row = z + M - 0.5
-    return { row, col }
-}
-
 function restart() {
     board = new Board(board.dimension, board.difficulty, board.creative)
     game = new Game()
+    boardView.board = board
 }
 
 /**
@@ -159,45 +118,116 @@ function restart() {
  * creates the rocketSweeper obj (the one is intersected), the grid, the userPosition
  * and adds all to the rocketSweeperBase
  * */
-function initBoardView() {
+function restartBoard() {
     if (!menu.isShowingMenu()) {
         board = new Board(board.dimension, board.difficulty, board.creative)
         game = new Game()
         menu.reset(board, game)
     }
 
-    rocketSweeperBase.clear()
-    rocketSweeper = new THREE.Mesh(
-        new THREE.PlaneGeometry(board.dimension, board.dimension),
-        boardMaterial
-    )
-    rocketSweeper.rotateX(-Math.PI / 2)
-    rocketSweeper.position.y = 0.5
-    rocketSweeper.name = 'rocketsweeper'
-
-    const grid = new THREE.GridHelper(board.dimension, board.dimension)
-    grid.position.y = 0.51
-
-    userPosition = new THREE.Mesh(
-        new THREE.PlaneGeometry(1, 1),
-        new THREE.MeshPhongMaterial({ color: 0xb3c8cf, side: THREE.DoubleSide })
-    )
-    userPosition.position.addScalar(0.5)
+    boardView.restartBoardView(board)
     userPosition.position.y = 0.01
-    userPosition.rotateX(-Math.PI / 2)
+    boardView.addToBoard(userPosition, userPosition.position.clone())
+}
 
-    rocketSweeperBase.add(rocketSweeper)
-    addToBoard(userPosition, userPosition.position.clone())
-    rocketSweeperBase.add(grid)
+function loadGUI() {
+    gui = new GUI()
+    const flagKeys = ['bowser', 'mario', 'luigi', 'peach', 'toad', 'estrella']
+    const options = {
+        flag: flagKeys[0],
+    }
+    const folder = gui.addFolder('Cambiar Bandera')
+    folder.add(options, 'flag', flagKeys).name('Bandera').onChange(changeFlag)
+}
 
-    if (buttonMesh) createButtons()
+function createMoon() {
+    const textureLoader = new THREE.TextureLoader()
+    const moonGeometry = new THREE.IcosahedronGeometry(1000, 10)
+    const moonMaterial = new THREE.MeshStandardMaterial({
+        map: textureLoader.load('../../images/moon.jpg'),
+    })
+    const sphereMesh = new THREE.Mesh(moonGeometry, moonMaterial)
+    sphereMesh.castShadow = true
+    sphereMesh.receiveShadow = true
+    sphereMesh.position.y = -998
+    sphereMesh.rotateX(Math.PI / 2)
+    scene.add(sphereMesh)
+}
+
+function createStars() {
+    const starVertices = []
+    const starGeometry = new THREE.BufferGeometry()
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff })
+
+    for (let i = 0; i < 10000; i++) {
+        const x = randomCoordinate()
+        const y = randomCoordinate()
+        const z = randomCoordinate()
+        starVertices.push(x, y, z)
+    }
+
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3))
+
+    const stars = new THREE.Points(starGeometry, starMaterial)
+    scene.add(stars)
+}
+
+function setLights() {
+    const ambientLight = new THREE.AmbientLight(0x222244, 0.4)
+    scene.add(ambientLight)
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    directionalLight.position.set(10, 20, 10)
+    directionalLight.castShadow = true
+    directionalLight.shadow.mapSize.width = 2048
+    directionalLight.shadow.mapSize.height = 2048
+    scene.add(directionalLight)
+
+    const pointLight1 = new THREE.PointLight(0xffddaa, 0.8, 100)
+    pointLight1.position.set(-150, 100, 50)
+    pointLight1.castShadow = true
+    scene.add(pointLight1)
+
+    const pointLight2 = new THREE.PointLight(0xaaddff, 0.8, 100)
+    pointLight2.castShadow = true
+    pointLight2.position.set(150, 100, -50)
+    scene.add(pointLight2)
+
+    const spotLight = new THREE.SpotLight(0xffffff, 1, 1000, Math.PI / 6, 0.1, 2)
+    spotLight.castShadow = true
+    spotLight.position.set(0, 300, 300)
+    spotLight.target.position.set(0, 0, 0)
+    scene.add(spotLight)
+    scene.add(spotLight.target)
+}
+
+function randomCoordinate() {
+    // Con 50% de probabilidad, escoge el intervalo negativo o positivo
+    if (Math.random() < 0.5) {
+        // Intervalo entre -2000 y -500
+        return -2000 + Math.random() * 1950 // 1500 = (-500) - (-2000)
+    } else {
+        // Intervalo entre 500 y 2000
+        return 50 + Math.random() * 1950 // 1500 = 2000 - 500
+    }
+}
+
+function changeFlag(newVal) {
+    flagBase.clear()
+    const flag = flagMeshes.get(newVal)
+    const flagAux = flag.clone()
+    flagAux.rotateX(-Math.PI)
+    flagAux.position.z = 0.1
+    flagAux.scale.set(0.5, 0.5, 0.5)
+    flagBase.add(flagAux)
+    boardView.setFlagMesh(flag)
 }
 
 function win() {
     game.win()
 
     const video = document.createElement('video')
-    video.src = './videos/laugh1.mp4'
+    video.src = './videos/win0.mp4'
     video.load()
     video.muted = true
     video.loop = true
@@ -209,24 +239,25 @@ function win() {
 
     setTimeout(() => {
         video.play()
-        addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
-    }, 2500)
-    const textObj = showText(textWin)
+        boardView.addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
+    }, 1500)
+    const textObj = showText(textWinMesh)
     moveCamera(new THREE.Vector3(0, 5, 12), new THREE.Vector3(0, 5, 0))
     setTimeout(() => {
-        rocketSweeperBase.remove(pantalla)
-        rocketSweeperBase.remove(textObj)
-        initBoardView()
+        boardView.deleteFromBoard(pantalla)
+        boardView.deleteFromBoard(textObj)
+        restartBoard()
         menu.showMenu()
         moveCamera(new THREE.Vector3(0, 7, 7), new THREE.Vector3(0, 1, 0), 1000)
-    }, 5000)
+    }, 10000)
 }
 
 function lose() {
     game.lose()
 
     const video = document.createElement('video')
-    video.src = './videos/laugh1.mp4'
+    const randomVideo = Math.round(Math.random() * 2)
+    video.src = `./videos/lose${randomVideo}.mp4`
     video.load()
     video.muted = true
     video.loop = true
@@ -238,17 +269,17 @@ function lose() {
 
     setTimeout(() => {
         video.play()
-        addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
-    }, 2000)
-    const textObj = showText(textLost)
+        boardView.addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
+    }, 1500)
+    const textObj = showText(textLostMesh)
     moveCamera(new THREE.Vector3(0, 5, 12), new THREE.Vector3(0, 5, 0))
     setTimeout(() => {
-        rocketSweeperBase.remove(pantalla)
-        rocketSweeperBase.remove(textObj)
-        initBoardView()
+        boardView.deleteFromBoard(pantalla)
+        boardView.deleteFromBoard(textObj)
+        restartBoard()
         menu.showMenu()
         moveCamera(new THREE.Vector3(0, 7, 7), new THREE.Vector3(0, 1, 0), 2000)
-    }, 5000)
+    }, 7000)
 }
 
 /**
@@ -257,7 +288,7 @@ function lose() {
 function showText(text) {
     const lastPosition = text.position
     const textAux = text.clone()
-    addToBoard(textAux, new THREE.Vector3(0, 10, 0))
+    boardView.addToBoard(textAux, new THREE.Vector3(0, 10, 0))
     const textAnimation = new TWEEN.Tween(textAux.position)
         .to({ x: lastPosition.x, y: lastPosition.y, z: lastPosition.z }, 3000)
         .easing(TWEEN.Easing.Bounce.Out)
@@ -278,229 +309,200 @@ function moveCamera(moveTo, lookAt, duration) {
         .onUpdate(() => {
             camera.lookAt(lookAt)
         })
+        .onComplete(() => {
+            orbit.target.set(lookAt)
+            orbit.update()
+        })
     moveAnim.start()
 }
 
 function updatePoints() {
     const newPoints = game.points
-    score.innerText = 'Puntos: ' + newPoints
+    scoreLabel.innerText = 'Puntos: ' + newPoints
 }
 
-function showMines() {
+function showRockets() {
     if (!board.creative) return
-    board.mines.forEach((mine) => {
-        const textClone = textRocket.clone()
-        const gridPos = transformToGrid(mine.row, mine.col, board.dimension)
-        textClone.position.set(gridPos.x - 0.25, 0.01, gridPos.z + 0.25)
-        textClone.rotateX(-Math.PI / 2)
-
-        addToBoard(textClone, textClone.position.clone())
-        removeButton(mine.row, mine.col)
-    })
+    boardView.showRockets()
 }
 
-function createButtons() {
-    for (let row = 0; row < board.dimension; row++) {
-        for (let col = 0; col < board.dimension; col++) {
-            createButton(row, col)
-        }
-    }
-}
-
-function createButton(row, col) {
-    const gridPos = transformToGrid(row, col, board.dimension)
-    const button = buttonMesh.clone()
-    button.name = `button-${row}-${col}`
-    button.position.set(gridPos.x, 0.1, gridPos.z)
-    addToBoard(button, button.position.clone())
-}
-
-function removeButton(row, col) {
-    const button = scene.getObjectByName(`button-${row}-${col}`)
-    rocketSweeperBase.remove(button)
-}
-
-function createCoinGrid(number, row, col, delay) {
-    if (coinMeshes.size <= 0) return
-    if (number == BLANK) return
-    const coin = coinMeshes.get(`coin-${number}`).clone()
-    const matrixPos = transformToGrid(row, col, board.dimension)
-    coin.scale.set(0.125, 0.125, 0.125)
-    coin.position.set(matrixPos.x, 0.51, matrixPos.z)
-    setTimeout(() => {
-        rocketSweeperBase.add(coin)
-    }, delay)
-    animateCoin(coin, delay)
+function createCoin(number, matPos, delay) {
+    boardView.createCoin(number, matPos, delay)
     game.addPoints(number * 10)
     updatePoints()
 }
 
-function animateCoin(coin, delay) {
-    const duration = 500
-    const positionTween = new TWEEN.Tween(coin.position)
-        .to({ y: 1.5 }, duration) // Move up 3 units over 1 second
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .delay(delay)
-        .onComplete(() => {
-            // After reaching the peak, fall back down
-            new TWEEN.Tween(coin.position)
-                .to({ y: 0.51 }, duration)
-                .easing(TWEEN.Easing.Quadratic.In)
-                .start()
-        })
-
-    // Create tween for rotation
-    const rotationTween = new TWEEN.Tween(coin.rotation)
-        .to({ x: Math.PI * 4 }, duration * 2) // Rotate 720 degrees (4π) over 2 seconds
-        .delay(delay)
-        .easing(TWEEN.Easing.Linear.None)
-
-    // Start both tweens simultaneously
-    positionTween.start()
-    rotationTween.start()
-}
-
-function createRocket(position) {
-    const rocket = rocketMesh.clone()
-    rocket.position.copy(position)
-    rocket.position.y = 5
-    rocket.rotateY(-Math.PI / 2)
-    rocket.scale.set(0.3, 0.3, 0.3)
-    addToBoard(rocket, rocket.position.clone())
-    new TWEEN.Tween(rocket.position)
-        .to({ x: position.x, y: 0.5, z: position.z }, 500)
-        .easing(TWEEN.Easing.Linear.None)
-        .onComplete(() => {
-            rocketSweeperBase.remove(rocket)
-            createExplosion(position.clone(), scene)
-        })
-        .start()
-}
-
-function openArea(row, col) {
+function openArea(matPos) {
     let delay = 0
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
             if (i == 0 && j == 0) continue
-            const nextRow = row + i
-            const nextCol = col + j
-            if (nextRow >= board.dimension || nextRow < 0) continue
-            if (nextCol >= board.dimension || nextCol < 0) continue
-            if (!board.isDiscovered(nextRow, nextCol) && !board.isMarked(nextRow, nextCol)) {
-                board.discoverTile(nextRow, nextCol)
-                removeButton(nextRow, nextCol)
-                const nextVal = board.getTileValue(nextRow, nextCol)
+            const nextPos = new MatrixCoords(matPos.row + i, matPos.col + j)
+            if (nextPos.row >= board.dimension || nextPos.row < 0) continue
+            if (nextPos.col >= board.dimension || nextPos.col < 0) continue
+            if (!board.isDiscovered(nextPos) && !board.isMarked(nextPos)) {
+                board.discoverTile(nextPos)
+                boardView.removeButton(nextPos)
+                const nextVal = board.getTileValue(nextPos)
                 if (nextVal != MINE) {
-                    createCoinGrid(nextVal, nextRow, nextCol, delay)
+                    createCoin(nextVal, nextPos, delay)
                     delay += 100
                 }
 
                 if (nextVal == BLANK) {
-                    openArea(nextRow, nextCol)
+                    openArea(nextPos)
                 }
             }
         }
     }
 }
 
-function openSurrounding(row, col) {
+function openSurrounding(matPos) {
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
-            const nextRow = row + i
-            const nextCol = col + j
-            if (nextRow >= board.dimension || nextRow < 0) continue
-            if (nextCol >= board.dimension || nextCol < 0) continue
+            const nextPos = new MatrixCoords(matPos.row + i, matPos.col + j)
+            if (nextPos.row >= board.dimension || nextPos.row < 0) continue
+            if (nextPos.col >= board.dimension || nextPos.col < 0) continue
 
-            const condition =
-                !board.isDiscovered(nextRow, nextCol) && !board.isMarked(nextRow, nextCol)
-            console.log('tile', nextRow, nextCol, board.isMarked(nextRow, nextCol))
-            if (condition) {
-                if (discoverTile(nextRow, nextCol) == 'mine') return
+            const notDisAndNotMarked = !board.isDiscovered(nextPos) && !board.isMarked(nextPos)
+            if (notDisAndNotMarked) {
+                if (discoverTile(nextPos) == 'rocket') return
             }
         }
     }
 }
 
-function discoverTile(row, col) {
-    const currVal = board.getTileValue(row, col)
+function discoverTile(matPos) {
+    const currVal = board.getTileValue(matPos)
+    let res = ''
     switch (currVal) {
         case BLANK:
-            openArea(row, col)
+            openArea(matPos)
+            res = 'blank'
+            if (!board.isDiscovered(matPos)) {
+                board.discoverTile(matPos)
+                boardView.removeButton(matPos)
+            }
             break
 
         case MINE: {
-            discoveredARocket(row, col)
-            return 'mine'
+            discoveredARocket(matPos)
+            // to stop just after finding a rocket
+            return 'rocket'
         }
-        default:
-            createCoinGrid(currVal, row, col, 0)
-            board.discoverTile(row, col)
-            removeButton(row, col)
-            break
+        default: {
+            board.discoverTile(matPos)
+            const noDelay = 0
+            createCoin(currVal, matPos, noDelay)
+            boardView.removeButton(matPos)
+            res = 'coin'
+        }
     }
     if (board.hasWon()) win()
-    return ''
+    return res
 }
 
-function discoveredARocket(row, col) {
-    const currPosition = transformToGrid(row, col, board.dimension)
-    createRocket(new THREE.Vector3(currPosition.x, 0, currPosition.z))
-    board.discoverTile(row, col)
-    removeButton(row, col)
+function discoveredARocket(matPos) {
+    boardView.createRocket(matPos)
+    boardView.removeButton(matPos)
+    board.discoverTile(matPos)
     lose()
 }
 
 function loadModels() {
     gltfLoader = new GLTFLoader()
-    for (let i = 1; i <= 8; i++) {
-        loadModel(`../../models/coins/${i}_coin.glb`, coinMeshes, `coin-${i}`)
+    gltfLoader.setPath('../../models/')
+
+    gltfLoader.load('table/table.glb', (gltf) => {
+        table = gltf.scene
+        table.castShadow = true
+        table.receiveShadow = true
+        tableBox = new THREE.Box3().setFromObject(table)
+        const tableTopY = tableBox.max.y
+
+        boardView = new BoardView(camera, table, scene, board)
+        boardView.setBoardYPosition(tableTopY)
+
+        scene.add(table)
+        boardView.addToBoard(userPosition, userPosition.position.clone())
+
+        camera.position.set(0, tableTopY + 7, 10)
+        orbit = new OrbitControls(camera, renderer.domElement)
+        orbit.target.set(0, tableTopY, 0)
+        camera.lookAt(0, tableTopY, 0)
+
+        const flag = flagMeshes.get('bowser')
+
+        if (flag) boardView.setFlagMesh(flag)
+
+        loadTextures()
+    })
+
+    gltfLoader.load('flag/flag.glb', (gltf) => {
+        const flag = gltf.scene
+        flag.scale.set(0.25, 0.25, 0.25)
+        flagMeshes.set('bowser', flag)
+        if (boardView) boardView.setFlagMesh(flag)
+    })
+    loadAllFlags()
+}
+
+function loadAllFlags() {
+    const flagKeys = ['mario', 'luigi', 'peach', 'toad', 'estrella']
+    for (let i = 1; i <= 5; i++) {
+        gltfLoader.load(`flag/flag${i}.glb`, (gltf) => {
+            const flag = gltf.scene
+            flag.scale.set(0.25, 0.25, 0.25)
+            flagMeshes.set(flagKeys[i - 1], flag)
+        })
     }
-
-    gltfLoader.load('../../models/Rocket/rocket.glb', (gltf) => {
-        rocketMesh = gltf.scene.clone()
-    })
-
-    gltfLoader.load('../../models/button/button.glb', (gltf) => {
-        buttonMesh = gltf.scene.clone()
-        buttonMesh.scale.set(0.25, 0.25, 0.25)
-        createButtons()
-    })
-
-    gltfLoader.load('../../models/flag/flag.glb', (gltf) => {
-        flagMesh = SkeletonUtils.clone(gltf.scene)
-        flagMesh.scale.set(0.25, 0.25, 0.25)
-    })
 }
 
-/**@param {Map} map */
-function loadModel(modelPath, map, key) {
-    gltfLoader.load(
-        modelPath,
-        function (gltf) {
-            map.set(key, gltf.scene)
-        },
-        undefined,
-        function (error) {
-            console.error(error)
-        }
-    )
+function loadTextures() {
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.setPath('../../images/')
+
+    const diffuseMap = textureLoader.load('carpet/casino-diffuse.png')
+    const normalMap = textureLoader.load('carpet/casino-normal.jpg')
+    const displacementMap = textureLoader.load('carpet/casino-displacement.jpg')
+    const aoMap = textureLoader.load('carpet/casino-ao.jpg')
+    const specularMap = textureLoader.load('carpet/casino-specular.jpg')
+
+    const geometry = new THREE.PlaneGeometry(4, 2, 100, 100)
+
+    geometry.setAttribute('uv2', new THREE.Float32BufferAttribute(geometry.attributes.uv.array, 2))
+
+    const material = new THREE.MeshPhongMaterial({
+        map: diffuseMap,
+        normalMap: normalMap,
+        displacementMap: displacementMap,
+        displacementScale: 0.1,
+        aoMap: aoMap,
+        specularMap: specularMap,
+    })
+
+    flagBase = new THREE.Mesh(geometry, material)
+    const tableMax = tableBox.max
+    flagBase.position.y = 0.01 + tableMax.y
+    flagBase.position.z = tableMax.z - 1.5
+    flagBase.position.x = tableMax.x - 8
+    flagBase.rotation.x = -Math.PI / 2
+
+    const flag = flagMeshes.get('bowser').clone()
+    flag.rotateX(-Math.PI)
+    flag.position.z = 0.1
+    flag.scale.set(0.5, 0.5, 0.5)
+
+    flagBase.add(flag)
+
+    table.add(flagBase)
 }
+
 function loadFonts() {
     const loader = new FontLoader()
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function (font) {
-            const textGeometry = new TextGeometry('R', {
-                font: font,
-                size: 0.5,
-                height: 0.2,
-                curveSegments: 12,
-                bevelEnabled: true,
-                bevelThickness: 0.03,
-                bevelSize: 0.02,
-                bevelSegments: 5,
-            })
-
+        function(font) {
             const endTextSize = 1
             const labelWin = 'Has Ganado!'
             const labelLost = 'Has Perdido!'
@@ -530,19 +532,25 @@ function loadFonts() {
             const textRed = new THREE.MeshPhongMaterial({ color: 0xff0000 })
             const textGreen = new THREE.MeshPhongMaterial({ color: 0x00ff00 })
 
-            textLost = new THREE.Mesh(lostGeom, textRed)
-            textLost.position.x -= (endTextSize * labelLost.length) / 2 - 2
-            textLost.position.y = 4
-            textLost.position.z += 1.5
+            textLostMesh = new THREE.Mesh(lostGeom, textRed)
+            textLostMesh.position.x -= (endTextSize * labelLost.length) / 2 - 2
+            textLostMesh.position.y = 4
+            textLostMesh.position.z += 1.5
 
-            textWin = new THREE.Mesh(winGeom, textGreen)
-            textWin.position.x -= (endTextSize * labelWin.length) / 2 - 1.5
-            textWin.position.y = 4
-            textWin.position.z += 1.5
-
-            textRocket = new THREE.Mesh(textGeometry, textRed)
+            textWinMesh = new THREE.Mesh(winGeom, textGreen)
+            textWinMesh.position.x -= (endTextSize * labelWin.length) / 2 - 1.5
+            textWinMesh.position.y = 4
+            textWinMesh.position.z += 1.5
         }
     )
+}
+
+function loadBackground() {
+    const loader = new RGBELoader()
+    loader.load('../../images/hdr/background.hdr', (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping
+        scene.background = texture
+    })
 }
 
 function resizeWindow() {
@@ -554,41 +562,37 @@ function resizeWindow() {
 function dblClick() {
     if (!game.canPlay()) return
     if (intersects.length <= 0) return
-    const matrixPos = transformToMatrix(
-        userPosition.position.x,
-        userPosition.position.z,
-        board.dimension
-    )
+    const matrixPos = boardView.transformToMatrix(userPosition.position)
+
     if (currTileDisOrMarked(matrixPos)) return
     if (!tryStartPlaying(matrixPos)) return
     document.body.style.cursor = 'default'
 
-    discoverTile(matrixPos.row, matrixPos.col)
+    discoverTile(matrixPos)
 
-    removeButton(matrixPos.row, matrixPos.col)
+    boardView.removeButton(matrixPos)
 }
 
 function currTileDisOrMarked(mtrxPosition) {
-    return (
-        board.isDiscovered(mtrxPosition.row, mtrxPosition.col) ||
-        board.isMarked(mtrxPosition.row, mtrxPosition.col)
-    )
+    return board.isDiscovered(mtrxPosition) || board.isMarked(mtrxPosition)
 }
 
 function tryStartPlaying(mtrxPosition) {
     if (!game.canPlay()) return false
-    let curVal = board.getTileValue(mtrxPosition.row, mtrxPosition.col)
+
+    let curVal = board.getTileValue(mtrxPosition)
+
     while (!game.isPlaying()) {
-        curVal = board.getTileValue(mtrxPosition.row, mtrxPosition.col)
+        curVal = board.getTileValue(mtrxPosition)
         if (curVal != BLANK) {
             restart()
         } else {
             game.startPlaying()
-            showMines()
+            showRockets()
         }
     }
 
-    rocketCount.innerText = 'Explosivos: ' + board.nMines
+    rocketCountLabel.innerText = 'Explosivos: ' + board.nRockets
     return true
 }
 
@@ -597,77 +601,56 @@ function rightMouseDown(event) {
     if (intersects.length <= 0) return
     if (event.button == 2) {
         event.preventDefault()
-        const matrixPos = transformToMatrix(
-            userPosition.position.x,
-            userPosition.position.z,
-            board.dimension
-        )
-        const button = scene.getObjectByName(`button-${matrixPos.row}-${matrixPos.col}`)
-        const flag = scene.getObjectByName(`flag-${matrixPos.row}-${matrixPos.col}`)
-        if (button || flag || (board.creative && board.isMine(matrixPos.row, matrixPos.col)))
-            toggleFlag(matrixPos)
+        const matrixPos = boardView.transformToMatrix(userPosition.position)
+        const button = boardView.getButton(matrixPos)
+        const flag = boardView.getFlag(matrixPos)
+        if (button || flag || (board.creative && board.isMine(matrixPos))) toggleFlag(matrixPos)
     }
 }
 
 function toggleFlag(mtrxPosition) {
-    if (!board.isMarked(mtrxPosition.row, mtrxPosition.col)) {
-        removeButton(mtrxPosition.row, mtrxPosition.col)
-        createFlag(mtrxPosition)
+    if (!board.isMarked(mtrxPosition)) {
+        boardView.removeButton(mtrxPosition)
+        boardView.createFlag(mtrxPosition)
     } else {
-        removeFlag(mtrxPosition)
-        createButton(mtrxPosition.row, mtrxPosition.col)
+        boardView.removeFlag(mtrxPosition)
+        boardView.createButton(mtrxPosition)
     }
-    board.toggleMarkTile(mtrxPosition.row, mtrxPosition.col)
-    rocketCount.innerText = 'Explosivos: ' + board.getGameRockets()
-}
-
-function createFlag(mtrxPosition) {
-    const flag = SkeletonUtils.clone(flagMesh)
-    flag.name = `flag-${mtrxPosition.row}-${mtrxPosition.col}`
-    flag.rotateY(0.25)
-    const flagPos = userPosition.position.clone()
-    addToBoard(flag, new THREE.Vector3(flagPos.x, 0.01, flagPos.z))
-}
-function removeFlag(mtrxPosition) {
-    const flag = scene.getObjectByName(`flag-${mtrxPosition.row}-${mtrxPosition.col}`)
-    rocketSweeperBase.remove(flag)
+    board.toggleMarkTile(mtrxPosition)
+    rocketCountLabel.innerText = 'Explosivos: ' + board.getGameRockets()
 }
 
 function moveOnBoard(e) {
+    if (!boardView) return
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1
 
-    let prevPosition, prevMatrixPosition, prevBtn, prevBtnLabel
+    let prevPosition, prevMatrixPosition, prevBtn
 
     if (intersects && intersects.length > 0) {
         prevPosition = new THREE.Vector3().copy(intersects[0].point).floor().addScalar(0.5)
-        prevMatrixPosition = transformToMatrix(prevPosition.x, prevPosition.z, board.dimension)
-        prevBtnLabel = `button-${prevMatrixPosition.row}-${prevMatrixPosition.col}`
-        prevBtn = scene.getObjectByName(prevBtnLabel)
+        prevMatrixPosition = boardView.transformToMatrix(prevPosition)
+        prevBtn = boardView.getButton(prevMatrixPosition)
     } else prevPosition = undefined
 
-    raycaster.setFromCamera(mousePosition, camera)
-    intersects = raycaster.intersectObject(rocketSweeper)
+    intersects = boardView.getIntersect(mousePosition)
     if (intersects.length > 0) {
         const intersect = intersects[0]
         const highlightPos = new THREE.Vector3().copy(intersect.point).floor().addScalar(0.5)
-        const currMatrixPosition = transformToMatrix(
-            highlightPos.x,
-            highlightPos.z,
-            board.dimension
-        )
+        const currMatrixPosition = boardView.transformToMatrix(highlightPos)
 
         userPosition.position.set(highlightPos.x, 0.51, highlightPos.z)
-        const currBtnLabel = `button-${currMatrixPosition.row}-${currMatrixPosition.col}`
-        const currIsMine = board.isMine(currMatrixPosition.row, currMatrixPosition.col)
-        const currBtn = rocketSweeperBase.getObjectByName(currBtnLabel)
+        const currIsMine = board.isMine(currMatrixPosition)
+        const currBtn = boardView.getButton(currMatrixPosition)
+
         if (currBtn) {
             document.body.style.cursor = game.canPlay() ? 'pointer' : 'default'
             hoverBtn(true, currBtn)
         } else if (board.creative && currIsMine) {
             document.body.style.cursor = game.canPlay() ? 'pointer' : 'default'
         } else document.body.style.cursor = e.ctrlKey ? 'pointer' : 'default'
-        if (prevBtn && currBtnLabel !== prevBtnLabel) {
+
+        if (prevBtn && !currMatrixPosition.equals(prevMatrixPosition)) {
             hoverBtn(false, prevBtn)
         }
     } else {
@@ -688,8 +671,8 @@ function cntrlClick(event) {
     if (!game.canPlay()) return
     if (!intersects && intersects.length <= 0) return
     const currPosition = userPosition.position.clone()
-    const matrixPos = transformToMatrix(currPosition.x, currPosition.z, board.dimension)
-    openSurrounding(matrixPos.row, matrixPos.col, currPosition)
+    const matrixPos = boardView.transformToMatrix(currPosition)
+    openSurrounding(matrixPos)
 }
 
 window.addEventListener('resize', resizeWindow)
