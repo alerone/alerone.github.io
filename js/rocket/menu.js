@@ -14,11 +14,16 @@ export class Menu {
         this.getButtons()
         this.initEvents()
         this.showingMenu = true
+        if (this.gui) this.gui.domElement.style.display = 'none'
     }
 
     reset(board, game) {
         this.board = board
         this.game = game
+    }
+
+    setGUI(gui) {
+        this.gui = gui
     }
 
     initEvents() {
@@ -68,16 +73,17 @@ export class Menu {
 
     playEvent() {
         this.gameMenu.classList.add('hidden')
-        console.log(this.game)
         this.game.start()
         // actualiza la dificultad que se puede haber cambiado con los botones de dificultad
         this.board.updateDifficulty()
         this.showingMenu = false
+        if (this.gui) this.gui.domElement.style.display = ''
     }
 
     showMenu() {
         this.gameMenu.classList.remove('hidden')
         this.showingMenu = true
+        if (this.gui) this.gui.domElement.style.display = 'none'
     }
 
     diffMenuEvent() {

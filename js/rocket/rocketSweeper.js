@@ -43,6 +43,10 @@ const menu = new Menu(game, board)
 
 let scoreLabel
 let rocketCountLabel
+let difficultyLabel
+
+/**@type {THREE.LoadingManager}*/
+let loadingManager
 
 let textLostMesh
 let textWinMesh
@@ -51,6 +55,7 @@ let gltfLoader
 
 const BLANK = 0
 const MINE = -1
+const dificultades = ['Fácil', 'Medio', 'Difícil']
 
 init()
 load()
@@ -65,22 +70,53 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.shadowMap.enabled = true
+    renderer.shadowMap.type = THREE.PCFShadowMap
 
     document.getElementById('container').appendChild(renderer.domElement)
     scoreLabel = document.querySelector('#score')
     rocketCountLabel = document.getElementById('explosivos')
     rocketCountLabel.innerText = 'Explosivos: ' + board.nRockets
+    difficultyLabel = document.querySelector('#diff')
     // Escena
     scene = new THREE.Scene()
 
+    const loadingScreen = document.querySelector('#loading-screen')
+    const progressBar = document.querySelector('#progress-bar')
+
     // Camara
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000)
     camera.position.set(0, 7, 7)
+
+    loadingManager = new THREE.LoadingManager()
+    loadingManager.onProgress = (progress, itemsLoaded, itemsTotal) => {
+        const percentComplete = 100 * (itemsLoaded / itemsTotal)
+        console.log(percentComplete)
+        progressBar.style.width = Math.round(percentComplete) + '%'
+        progressBar.textContent = Math.round(percentComplete) + '%'
+    }
+    loadingManager.onLoad = () => {
+        console.log('cargado')
+        loadingScreen.classList.add('hidden')
+
+        const flag = flagMeshes.get('bowser').clone()
+
+        if (flag) boardView.setFlagMesh(flag)
+
+        moveCamera(
+            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+            1500
+        )
+        flag.rotateX(-Math.PI)
+        flag.position.z = 0.1
+        flag.scale.set(0.5, 0.5, 0.5)
+
+        flagBase.add(flag)
+        setLights()
+    }
 }
 
 function load() {
-    setLights()
-
     userPosition = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshPhongMaterial({ color: 0xb3c8cf, side: THREE.DoubleSide })
@@ -123,6 +159,8 @@ function restartBoard() {
         board = new Board(board.dimension, board.difficulty, board.creative)
         game = new Game()
         menu.reset(board, game)
+        difficultyLabel.innerText = 'Dificultad: ' + dificultades[board.difficulty - 1]
+        rocketCountLabel.innerText = 'Explosivos: ' + board.nRockets
     }
 
     boardView.restartBoardView(board)
@@ -135,9 +173,29 @@ function loadGUI() {
     const flagKeys = ['bowser', 'mario', 'luigi', 'peach', 'toad', 'estrella']
     const options = {
         flag: flagKeys[0],
+        diff: dificultades[board.difficulty - 1],
+        creative: board.creative,
+        applyGameChanges: () => {
+            board.setDifficulty(dificultades.indexOf(options.diff) + 1)
+            board.setCreative(options.creative)
+            restartBoard()
+            game.start()
+        },
+        shadows: true,
+        color: '#2590d1',
     }
     const folder = gui.addFolder('Cambiar Bandera')
     folder.add(options, 'flag', flagKeys).name('Bandera').onChange(changeFlag)
+    folder.addColor(options, 'color').onChange((val) => {
+        boardView.changeBoardColor(val)
+    })
+    const gameFolder = gui.addFolder('Ajustar partida')
+    gameFolder.add(options, 'diff', dificultades).name('Dificultad')
+    gameFolder.add(options, 'creative', false).name('Ver Cohetes')
+    gameFolder.add(options, 'applyGameChanges').name('Aplicar cambios')
+
+    menu.setGUI(gui)
+    gui.domElement.style.display = 'none'
 }
 
 function createMoon() {
@@ -154,69 +212,44 @@ function createMoon() {
     scene.add(sphereMesh)
 }
 
-function createStars() {
-    const starVertices = []
-    const starGeometry = new THREE.BufferGeometry()
-    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff })
-
-    for (let i = 0; i < 10000; i++) {
-        const x = randomCoordinate()
-        const y = randomCoordinate()
-        const z = randomCoordinate()
-        starVertices.push(x, y, z)
-    }
-
-    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3))
-
-    const stars = new THREE.Points(starGeometry, starMaterial)
-    scene.add(stars)
-}
-
 function setLights() {
-    const ambientLight = new THREE.AmbientLight(0x222244, 0.4)
+    const tableTop = tableBox.max.y
+    const ambientLight = new THREE.AmbientLight(0x222244, 0.5)
     scene.add(ambientLight)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
-    directionalLight.position.set(10, 20, 10)
-    directionalLight.castShadow = true
-    directionalLight.shadow.mapSize.width = 2048
-    directionalLight.shadow.mapSize.height = 2048
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+    directionalLight.position.set(0, tableTop + 10, -100)
+    castDirectional(directionalLight)
     scene.add(directionalLight)
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1)
-    directionalLight2.position.set(0, 10, -10000)
-    directionalLight2.castShadow = true
-    directionalLight2.shadow.mapSize.width = 2048
-    directionalLight2.shadow.mapSize.height = 2048
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6)
+    directionalLight2.position.set(0, tableTop + 5, 25)
+    directionalLight2.target.position.set(0, tableTop + 5, 0)
+    castDirectional(directionalLight2)
     scene.add(directionalLight2)
 
-    const pointLight1 = new THREE.PointLight(0xffddaa, 0.8, 100)
-    pointLight1.position.set(-150, 100, 50)
-    pointLight1.castShadow = true
-    scene.add(pointLight1)
-
-    const pointLight2 = new THREE.PointLight(0xaaddff, 0.8, 100)
-    pointLight2.castShadow = true
-    pointLight2.position.set(150, 100, -50)
-    scene.add(pointLight2)
-
-    const spotLight = new THREE.SpotLight(0xffffff, 1, 1000, Math.PI / 6, 0.1, 2)
-    spotLight.castShadow = true
-    spotLight.position.set(0, 300, 300)
-    spotLight.target.position.set(0, 0, 0)
+    const spotLight = new THREE.SpotLight(0xffffff, 3, 40, Math.PI / 6, 0.6, 2)
+    spotLight.position.set(0, tableTop + 25, 0)
+    spotLight.target.position.set(0, tableTop, 0)
     scene.add(spotLight)
-    scene.add(spotLight.target)
+
+    const flagSpotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 12, 0.1, 2)
+    const flagBasePos = flagBase.position.clone()
+    flagSpotLight.position.set(flagBasePos.x, tableTop + 5, flagBasePos.z)
+    flagSpotLight.target = flagBase
+    scene.add(flagSpotLight)
 }
 
-function randomCoordinate() {
-    // Con 50% de probabilidad, escoge el intervalo negativo o positivo
-    if (Math.random() < 0.5) {
-        // Intervalo entre -2000 y -500
-        return -2000 + Math.random() * 1950 // 1500 = (-500) - (-2000)
-    } else {
-        // Intervalo entre 500 y 2000
-        return 50 + Math.random() * 1950 // 1500 = 2000 - 500
-    }
+function castDirectional(dirLight) {
+    dirLight.castShadow = true
+    dirLight.shadow.mapSize.width = 2048
+    dirLight.shadow.mapSize.height = 2048
+    dirLight.shadow.camera.near = 0.01
+    dirLight.shadow.camera.far = 500
+    dirLight.shadow.camera.left = -50
+    dirLight.shadow.camera.right = 50
+    dirLight.shadow.camera.bottom = -50
+    dirLight.shadow.camera.top = 50
 }
 
 function changeFlag(newVal) {
@@ -259,6 +292,7 @@ function win() {
         boardView.deleteFromBoard(textObj)
         restartBoard()
         menu.showMenu()
+        gui.domElement.style.display = 'none'
         moveCamera(
             new THREE.Vector3(0, tableBox.max.y + 7, 12),
             new THREE.Vector3(0, tableBox.max.y + 1, 0),
@@ -429,17 +463,21 @@ function discoveredARocket(matPos) {
 }
 
 function loadModels() {
-    gltfLoader = new GLTFLoader()
+    gltfLoader = new GLTFLoader(loadingManager)
     gltfLoader.setPath('../../models/')
 
     gltfLoader.load('table/table.glb', (gltf) => {
-        table = gltf.scene
-        table.castShadow = true
-        table.receiveShadow = true
+        gltf.scene.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true // Permite que la malla proyecte sombras
+                child.receiveShadow = true // Permite que la malla reciba sombras
+            }
+        })
+        table = gltf.scene.clone()
         tableBox = new THREE.Box3().setFromObject(table)
         const tableTopY = tableBox.max.y
 
-        boardView = new BoardView(camera, table, scene, board)
+        boardView = new BoardView(camera, table, scene, board, loadingManager)
         boardView.setBoardYPosition(tableTopY)
 
         scene.add(table)
@@ -450,24 +488,18 @@ function loadModels() {
         orbit.update()
         orbit.target.set(0, tableTopY, 0)
 
-        const flag = flagMeshes.get('bowser')
-
-        if (flag) boardView.setFlagMesh(flag)
-
-        moveCamera(
-            new THREE.Vector3(0, tableBox.max.y + 7, 12),
-            new THREE.Vector3(0, tableBox.max.y + 1, 0),
-            1500
-        )
-
         loadTextures()
     })
 
     gltfLoader.load('flag/flag.glb', (gltf) => {
+        gltf.scene.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true // Permite que la malla proyecte sombras
+            }
+        })
         const flag = gltf.scene
         flag.scale.set(0.25, 0.25, 0.25)
         flagMeshes.set('bowser', flag)
-        if (boardView) boardView.setFlagMesh(flag)
     })
     loadAllFlags()
 }
@@ -476,6 +508,11 @@ function loadAllFlags() {
     const flagKeys = ['mario', 'luigi', 'peach', 'toad', 'estrella']
     for (let i = 1; i <= 5; i++) {
         gltfLoader.load(`flag/flag${i}.glb`, (gltf) => {
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true // Permite que la malla proyecte sombras
+                }
+            })
             const flag = gltf.scene
             flag.scale.set(0.25, 0.25, 0.25)
             flagMeshes.set(flagKeys[i - 1], flag)
@@ -484,7 +521,7 @@ function loadAllFlags() {
 }
 
 function loadTextures() {
-    const textureLoader = new THREE.TextureLoader()
+    const textureLoader = new THREE.TextureLoader(loadingManager)
     textureLoader.setPath('../../images/')
 
     const diffuseMap = textureLoader.load('carpet/casino-diffuse.png')
@@ -509,22 +546,16 @@ function loadTextures() {
     flagBase = new THREE.Mesh(geometry, material)
     const tableMax = tableBox.max
     flagBase.position.y = 0.01 + tableMax.y
-    flagBase.position.z = tableMax.z - 1.5
-    flagBase.position.x = tableMax.x - 8
+    flagBase.position.z = tableMax.z - 3
+    flagBase.position.x = tableMax.x - 6
     flagBase.rotation.x = -Math.PI / 2
-
-    const flag = flagMeshes.get('bowser').clone()
-    flag.rotateX(-Math.PI)
-    flag.position.z = 0.1
-    flag.scale.set(0.5, 0.5, 0.5)
-
-    flagBase.add(flag)
+    flagBase.castShadow = true
 
     table.add(flagBase)
 }
 
 function loadFonts() {
-    const loader = new FontLoader()
+    const loader = new FontLoader(loadingManager)
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
         function(font) {
@@ -571,7 +602,7 @@ function loadFonts() {
 }
 
 function loadBackground() {
-    const loader = new RGBELoader()
+    const loader = new RGBELoader(loadingManager)
     loader.load('../../images/hdr/background.hdr', (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping
         scene.background = texture

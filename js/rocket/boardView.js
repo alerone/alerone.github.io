@@ -10,9 +10,9 @@ import { MatrixCoords } from './matrixCoords.js'
 
 /**@type{THREE.Mesh}*/
 let base
-/**@type{THREE.MeshPhongMaterial}*/
+/**@type{THREE.MeshLambertMaterial}*/
 let boardMaterial
-/**@type{THREE.MeshPhongMaterial}*/
+/**@type{THREE.Mesh}*/
 let intersectBase
 
 let raycaster
@@ -24,13 +24,14 @@ const BLANK = 0
 
 export class BoardView {
     /**@param {Board} board */
-    constructor(camera, createOn, scene, board) {
+    constructor(camera, createOn, scene, board, loadingManager) {
         this.scene = scene
         this.board = board
         this.camera = camera
         this.coinMeshes = new Map()
+        this.loadingManager = loadingManager
 
-        boardMaterial = new THREE.MeshPhongMaterial({
+        boardMaterial = new THREE.MeshLambertMaterial({
             color: 0x2590d1,
             side: THREE.DoubleSide,
         })
@@ -41,15 +42,13 @@ export class BoardView {
         )
         base.geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
         base.position.y = -0.5
-        base.castShadow = true
-        base.receiveShadow = true
 
         intersectBase = new THREE.Mesh(
             new THREE.PlaneGeometry(board.dimension, board.dimension),
             boardMaterial
         )
         intersectBase.rotateX(-Math.PI / 2)
-        intersectBase.position.y = 0.5
+        intersectBase.position.y = 0.501
         intersectBase.name = 'intersectBase'
 
         const grid = new THREE.GridHelper(board.dimension, board.dimension)
@@ -77,6 +76,10 @@ export class BoardView {
         })
     }
 
+    changeBoardColor(newVal) {
+        base.material.color.set(newVal)
+        intersectBase.material.color.set(newVal)
+    }
     setBoardYPosition(newY) {
         base.position.y = newY
     }
@@ -232,7 +235,7 @@ export class BoardView {
     }
 
     loadBoardModels() {
-        gltfLoader = new GLTFLoader()
+        gltfLoader = new GLTFLoader(this.loadingManager)
         for (let i = 1; i <= 8; i++) {
             loadModel(`../../models/coins/${i}_coin.glb`, this.coinMeshes, `coin-${i}`)
         }
@@ -248,7 +251,7 @@ export class BoardView {
     }
 
     loadFonts() {
-        const loader = new FontLoader()
+        const loader = new FontLoader(this.loadingManager)
         loader.load(
             'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
             function(font) {
@@ -306,6 +309,11 @@ function loadModel(modelPath, map, key) {
     gltfLoader.load(
         modelPath,
         function(gltf) {
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true // Permite que la malla proyecte sombras
+                }
+            })
             map.set(key, gltf.scene)
         },
         undefined,
