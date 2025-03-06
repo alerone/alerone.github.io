@@ -325,6 +325,7 @@ function win() {
         500
     )
     setTimeout(() => {
+        if (!game.isGameOver()) return
         boardView.deleteFromBoard(pantalla)
         boardView.deleteFromBoard(textObj)
         restartBoard()
@@ -364,6 +365,7 @@ function lose() {
         500
     )
     setTimeout(() => {
+        if (!game.isGameOver()) return
         boardView.deleteFromBoard(pantalla)
         boardView.deleteFromBoard(textObj)
         restartBoard()
@@ -610,7 +612,7 @@ function loadFonts() {
     const loader = new FontLoader(loadingManager)
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function (font) {
+        function(font) {
             const endTextSize = 1
             const labelWin = 'Has Ganado!'
             const labelLost = 'Has Perdido!'
