@@ -50,6 +50,42 @@ Plantilla de carga de aplicaciones Threejs
         <link href="tailwind.css" rel="stylesheet" />
     </head>
     <body>
+        <!--Menú de controles del juego-->
+        <div
+            id="controls-menu"
+            class="hidden absolute max-w-lg top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-lg shadow-lg p-6"
+        >
+            <h1 class="text-center text-2xl exo2-font font-bold mb-6">Controles del Juego</h1>
+            <div class="flex items-center mb-4">
+                <div class="flex items-center rounded-xl py-1 bg-white mr-4">
+                    <img class="w-10 h-10" src="./images/left-click.png" alt="Doble Click" />
+                    <img class="w-10 h-10" src="./images/left-click.png" alt="Doble Click" />
+                </div>
+                <p class="text-gray-800 font-bold">Doble click: Desbloquear una casilla.</p>
+            </div>
+            <div class="flex items-center mb-4">
+                <div class="flex items-center rounded-xl py-1 bg-white mr-14">
+                    <img class="w-10 h-10" src="./images/right-click.png" alt="Click Derecho" />
+                </div>
+                <p class="text-gray-800 font-bold">Click derecho: Colocar una bandera.</p>
+            </div>
+
+            <div class="flex items-center">
+                <div class="flex items-center rounded-xl py-1 bg-white mr-4">
+                    <img class="w-10 h-10" src="./images/ctrl.png" alt="Control + Click" />
+                    <img class="w-10 h-10" src="./images/left-click.png" alt="Doble Click" />
+                </div>
+                <p class="text-gray-800 font-bold">
+                    Control + click: Desbloquear casillas adyacentes.
+                </p>
+            </div>
+        </div>
+        <button
+            id="info-btn"
+            class="fixed bottom-4 left-4 bg-white hover:bg-gray-200 text-gray-800 font-bold rounded-xl w-12 h-12 text-3xl flex items-center justify-center"
+        >
+            ?
+        </button>
         <div
             id="loading-screen"
             class="fixed inset-0 bg-gray-800 flex flex-col items-center justify-center z-50"
@@ -65,6 +101,7 @@ Plantilla de carga de aplicaciones Threejs
             </div>
         </div>
         <div
+            id="scoreboard"
             class="absolute flex flex-col top-4 left-4 bg-white bg-opacity-70 backdrop-blur-sm p-3 rounded-lg shadow-lg select-none"
         >
             <h1

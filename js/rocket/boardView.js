@@ -154,7 +154,8 @@ export class BoardView {
         const flagLabel = `flag-${matPos.row}-${matPos.col}`
         flag.name = flagLabel
         flag.rotateZ(0.25)
-        this.addToBoardMatrix(flag, matPos, 0.1)
+        this.addToBoardMatrix(flag, matPos, 3)
+        animateFlagIn(flag)
         return flagLabel
     }
 
@@ -168,7 +169,10 @@ export class BoardView {
     /**@param {MatrixCoords} matPos */
     removeFlag(matPos) {
         const flagLabel = `flag-${matPos.row}-${matPos.col}`
-        this.deleteByName(flagLabel)
+        const flag = this.getFlag(matPos)
+        animateFlagOut(flag, () => {
+            this.deleteFromBoard(flag)
+        })
         return flagLabel
     }
 
@@ -223,9 +227,9 @@ export class BoardView {
         const boardPosition = this.transformToBoard(matPos)
         rocket.rotateY(-Math.PI / 2)
         rocket.scale.set(0.3, 0.3, 0.3)
-        this.addToBoardMatrix(rocket, matPos, 5)
+        this.addToBoardMatrix(rocket, matPos, 10)
         new TWEEN.Tween(rocket.position)
-            .to({ x: boardPosition.x, y: 0.5, z: boardPosition.z }, 500)
+            .to({ x: boardPosition.x, y: 0.5, z: boardPosition.z }, 660)
             .easing(TWEEN.Easing.Linear.None)
             .onComplete(() => {
                 createExplosion(rocket.position.clone(), base)
@@ -254,7 +258,7 @@ export class BoardView {
         const loader = new FontLoader(this.loadingManager)
         loader.load(
             'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-            function(font) {
+            function (font) {
                 const textGeometry = new TextGeometry('R', {
                     font: font,
                     size: 0.5,
@@ -270,6 +274,24 @@ export class BoardView {
             }
         )
     }
+}
+
+function animateFlagIn(flag) {
+    const duration = 750
+    const positionTween = new TWEEN.Tween(flag.position)
+        .to({ y: 0.51 }, duration)
+        .easing(TWEEN.Easing.Bounce.Out)
+    positionTween.start()
+}
+
+/**@param {BoardView} boardView */
+function animateFlagOut(flag, onComplete) {
+    const duration = 750
+    const positionTween = new TWEEN.Tween(flag.position)
+        .to({ y: 4 }, duration)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onComplete(onComplete)
+    positionTween.start()
 }
 
 function animateCoin(coin) {
@@ -308,7 +330,7 @@ function createButtons(boardView) {
 function loadModel(modelPath, map, key) {
     gltfLoader.load(
         modelPath,
-        function(gltf) {
+        function (gltf) {
             gltf.scene.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true // Permite que la malla proyecte sombras
@@ -317,7 +339,7 @@ function loadModel(modelPath, map, key) {
             map.set(key, gltf.scene)
         },
         undefined,
-        function(error) {
+        function (error) {
             console.error(error)
         }
     )

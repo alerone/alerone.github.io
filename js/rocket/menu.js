@@ -10,6 +10,7 @@ export class Menu {
         this.board = board
         this.gameMenu = document.querySelector('#game-menu')
         this.diffMenu = document.querySelector('#difficulty-menu')
+        this.infoMenu = document.querySelector('#controls-menu')
         this.getMarcador()
         this.getButtons()
         this.initEvents()
@@ -43,6 +44,7 @@ export class Menu {
             this.changeDiffEvent.bind(this, BOARD.HARD, this.btnHard)
         )
         this.btnBack.addEventListener('click', this.backEvent.bind(this))
+        this.infoBtn.addEventListener('click', this.infoEvent.bind(this))
     }
 
     getMarcador() {
@@ -65,6 +67,8 @@ export class Menu {
         ])
         this.count = 0
         this.btnBack = document.querySelector('#btn-back')
+        this.infoBtn = document.querySelector('#info-btn')
+        this.infoActive = false
     }
 
     isShowingMenu() {
@@ -78,6 +82,11 @@ export class Menu {
         this.board.updateDifficulty()
         this.showingMenu = false
         if (this.gui) this.gui.domElement.style.display = ''
+    }
+
+    hideMenu() {
+        this.gameMenu.classList.add('hidden')
+        this.showingMenu = false
     }
 
     showMenu() {
@@ -113,6 +122,34 @@ export class Menu {
     backEvent() {
         this.gameMenu.classList.remove('hidden')
         this.diffMenu.classList.add('hidden')
+    }
+
+    infoEvent() {
+        this.infoActive = !this.infoActive
+        if (this.infoActive) {
+            this.infoBtn.classList.add('bg-blue-500')
+            this.infoBtn.classList.add('hover:bg-blue-600')
+            this.infoBtn.classList.add('text-white')
+            this.infoBtn.classList.remove('bg-white')
+            this.infoBtn.classList.remove('hover:bg-gray-200')
+            this.infoBtn.classList.remove('text-gray-800')
+            this.infoMenu.classList.remove('hidden')
+            if (this.showingMenu) {
+                this.gameMenu.classList.add('hidden')
+            }
+        } else {
+            this.infoBtn.classList.remove('bg-blue-500')
+            this.infoBtn.classList.remove('hover:bg-blue-600')
+            this.infoBtn.classList.remove('text-white')
+            this.infoBtn.classList.add('bg-white')
+            this.infoBtn.classList.add('hover:bg-gray-200')
+            this.infoBtn.classList.add('text-gray-800')
+            this.infoMenu.classList.add('hidden')
+            if (this.showingMenu) {
+                this.gameMenu.classList.remove('hidden')
+            }
+        }
+        console.log(this.infoBtn.classList)
     }
 }
 

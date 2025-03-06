@@ -41,9 +41,11 @@ let flagBase
 
 const menu = new Menu(game, board)
 
+// HTML Elems
 let scoreLabel
 let rocketCountLabel
 let difficultyLabel
+let scoreboard
 
 /**@type {THREE.LoadingManager}*/
 let loadingManager
@@ -80,43 +82,21 @@ function init() {
     // Escena
     scene = new THREE.Scene()
 
-    const loadingScreen = document.querySelector('#loading-screen')
-    const progressBar = document.querySelector('#progress-bar')
-
     // Camara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000)
-    camera.position.set(0, 7, 7)
+    camera.position.set(0, -100, 550)
 
     loadingManager = new THREE.LoadingManager()
-    loadingManager.onProgress = (progress, itemsLoaded, itemsTotal) => {
-        const percentComplete = 100 * (itemsLoaded / itemsTotal)
-        console.log(percentComplete)
-        progressBar.style.width = Math.round(percentComplete) + '%'
-        progressBar.textContent = Math.round(percentComplete) + '%'
-    }
-    loadingManager.onLoad = () => {
-        console.log('cargado')
-        loadingScreen.classList.add('hidden')
+    menu.hideMenu()
 
-        const flag = flagMeshes.get('bowser').clone()
-
-        if (flag) boardView.setFlagMesh(flag)
-
-        moveCamera(
-            new THREE.Vector3(0, tableBox.max.y + 7, 12),
-            new THREE.Vector3(0, tableBox.max.y + 1, 0),
-            1500
-        )
-        flag.rotateX(-Math.PI)
-        flag.position.z = 0.1
-        flag.scale.set(0.5, 0.5, 0.5)
-
-        flagBase.add(flag)
-        setLights()
-    }
+    scoreboard = document.querySelector('#scoreboard')
+    scoreboard.classList.add('hidden')
 }
 
 function load() {
+    const loadingScreen = document.querySelector('#loading-screen')
+    const progressBar = document.querySelector('#progress-bar')
+
     userPosition = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshPhongMaterial({ color: 0xb3c8cf, side: THREE.DoubleSide })
@@ -131,6 +111,39 @@ function load() {
     loadBackground()
     createMoon()
     //createStars()
+
+    loadingManager.onProgress = (_, itemsLoaded, itemsTotal) => {
+        const percentComplete = 100 * (itemsLoaded / itemsTotal)
+        console.log(percentComplete)
+        progressBar.style.width = Math.round(percentComplete) + '%'
+        progressBar.textContent = Math.round(percentComplete) + '%'
+    }
+
+    loadingManager.onLoad = () => {
+        console.log('cargado')
+        loadingScreen.classList.add('hidden')
+
+        const flag = flagMeshes.get('bowser').clone()
+
+        if (flag) boardView.setFlagMesh(flag)
+
+        moveCamera(
+            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+            5000,
+            () => {
+                menu.showMenu()
+            }
+        )
+        flag.rotateX(-Math.PI)
+        flag.position.z = 0.1
+        flag.scale.set(0.5, 0.5, 0.5)
+
+        flagBase.add(flag)
+        setLights()
+
+        scoreboard.classList.remove('hidden')
+    }
 }
 
 function update(delta) {
@@ -183,16 +196,29 @@ function loadGUI() {
         },
         shadows: true,
         color: '#2590d1',
+        camera: () => {
+            moveCamera(
+                new THREE.Vector3(0, tableBox.max.y + 7, 12),
+                new THREE.Vector3(0, tableBox.max.y + 1, 0),
+                1500
+            )
+        },
     }
-    const folder = gui.addFolder('Cambiar Bandera')
+    const folder = gui.addFolder('Cambiar Apariencia')
     folder.add(options, 'flag', flagKeys).name('Bandera').onChange(changeFlag)
-    folder.addColor(options, 'color').onChange((val) => {
-        boardView.changeBoardColor(val)
-    })
+    folder
+        .addColor(options, 'color')
+        .name('Color')
+        .onChange((val) => {
+            boardView.changeBoardColor(val)
+        })
     const gameFolder = gui.addFolder('Ajustar partida')
     gameFolder.add(options, 'diff', dificultades).name('Dificultad')
     gameFolder.add(options, 'creative', false).name('Ver Cohetes')
     gameFolder.add(options, 'applyGameChanges').name('Aplicar cambios')
+
+    const cameraFolder = gui.addFolder('Ajustes de cámara')
+    cameraFolder.add(options, 'camera').name('Centrar cámara')
 
     menu.setGUI(gui)
     gui.domElement.style.display = 'none'
@@ -214,7 +240,7 @@ function createMoon() {
 
 function setLights() {
     const tableTop = tableBox.max.y
-    const ambientLight = new THREE.AmbientLight(0x222244, 0.5)
+    const ambientLight = new THREE.AmbientLight(0x222244, 1.2)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
@@ -238,6 +264,16 @@ function setLights() {
     flagSpotLight.position.set(flagBasePos.x, tableTop + 5, flagBasePos.z)
     flagSpotLight.target = flagBase
     scene.add(flagSpotLight)
+
+    const shipSpotLight = new THREE.SpotLight(0xffffff, 3, 60, Math.PI / 4, 0.3, 2)
+    const ship = scene.getObjectByName('starship')
+    const shipPosition = ship.position.clone()
+    shipSpotLight.position.set(shipPosition.x - 25, 40, shipPosition.z + 25)
+    shipSpotLight.target = ship
+    scene.add(shipSpotLight)
+
+    //const lightHelper = new THREE.SpotLightHelper(shipSpotLight)
+    //scene.add(lightHelper)
 }
 
 function castDirectional(dirLight) {
@@ -246,10 +282,10 @@ function castDirectional(dirLight) {
     dirLight.shadow.mapSize.height = 2048
     dirLight.shadow.camera.near = 0.01
     dirLight.shadow.camera.far = 500
-    dirLight.shadow.camera.left = -50
-    dirLight.shadow.camera.right = 50
-    dirLight.shadow.camera.bottom = -50
-    dirLight.shadow.camera.top = 50
+    dirLight.shadow.camera.left = -100
+    dirLight.shadow.camera.right = 100
+    dirLight.shadow.camera.bottom = -100
+    dirLight.shadow.camera.top = 100
 }
 
 function changeFlag(newVal) {
@@ -267,7 +303,8 @@ function win() {
     game.win()
 
     const video = document.createElement('video')
-    video.src = './videos/win0.mp4'
+    const randomVideo = Math.round(Math.random() * 2)
+    video.src = `./videos/win${randomVideo}.mp4`
     video.load()
     video.muted = true
     video.loop = true
@@ -305,7 +342,7 @@ function lose() {
     game.lose()
 
     const video = document.createElement('video')
-    const randomVideo = Math.round(Math.random() * 2)
+    const randomVideo = Math.round(Math.random() * 3)
     video.src = `./videos/lose${randomVideo}.mp4`
     video.load()
     video.muted = true
@@ -359,12 +396,16 @@ function showText(text) {
  * @param {THREE.Vector3} moveTo
  * @param {THREE.Vector3} lookAt
  * */
-function moveCamera(moveTo, lookAt, duration) {
+function moveCamera(moveTo, lookAt, duration, onComplete) {
     const moveAnim = new TWEEN.Tween(camera.position)
         .to({ x: moveTo.x, y: moveTo.y, z: moveTo.z }, duration)
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() => {
             camera.lookAt(lookAt)
+        })
+        .onComplete(() => {
+            if (onComplete) onComplete()
+            orbit.target.copy(lookAt)
         })
     moveAnim.start()
 }
@@ -483,7 +524,6 @@ function loadModels() {
         scene.add(table)
         boardView.addToBoard(userPosition, userPosition.position.clone())
 
-        camera.position.set(0, tableTopY + 7, 10)
         orbit = new OrbitControls(camera, renderer.domElement)
         orbit.update()
         orbit.target.set(0, tableTopY, 0)
@@ -502,6 +542,18 @@ function loadModels() {
         flagMeshes.set('bowser', flag)
     })
     loadAllFlags()
+
+    gltfLoader.load('starship/starship.glb', (gltf) => {
+        const starship = gltf.scene
+        starship.scale.set(8, 8, 8)
+        starship.rotateY(-0.8)
+        starship.traverse((child) => {
+            if (child.isMesh) child.castShadow = true
+        })
+        starship.name = 'starship'
+        starship.position.set(85, 30, -60)
+        scene.add(starship)
+    })
 }
 
 function loadAllFlags() {
@@ -558,7 +610,7 @@ function loadFonts() {
     const loader = new FontLoader(loadingManager)
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function(font) {
+        function (font) {
             const endTextSize = 1
             const labelWin = 'Has Ganado!'
             const labelLost = 'Has Perdido!'
