@@ -27,11 +27,17 @@ export class Board {
         setCountingMines(this)
     }
 
+    /**
+     *  Sets the difficulty and number of rockets of the board but don't update the actual board
+     * */
     setDifficulty(diff) {
         this.difficulty = diff
         setNumRockets(this)
     }
 
+    /**
+     *  Updates the board to the new difficulty value with new rockets
+     * */
     updateDifficulty() {
         placeRockets(this)
         setCountingMines(this)
@@ -82,7 +88,6 @@ export class Board {
 
     /**@param {MatrixCoords} matPos */
     discoverTile(matPos) {
-        console.log(matPos)
         if (!this.isMine(matPos) && !this.isDiscovered(matPos)) this.discovered++
         this.tiles[matPos.row * this.dimension + matPos.col].state = 'discovered'
     }
@@ -112,7 +117,6 @@ export class Board {
             this.marks.push(matPos)
             this.tiles[matPos.row * this.dimension + matPos.col].state = 'marked'
         }
-        console.log(this.marks)
     }
 
     /**@param {MatrixCoords} matPos */

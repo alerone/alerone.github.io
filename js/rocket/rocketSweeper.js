@@ -114,13 +114,11 @@ function load() {
 
     loadingManager.onProgress = (_, itemsLoaded, itemsTotal) => {
         const percentComplete = 100 * (itemsLoaded / itemsTotal)
-        console.log(percentComplete)
         progressBar.style.width = Math.round(percentComplete) + '%'
         progressBar.textContent = Math.round(percentComplete) + '%'
     }
 
     loadingManager.onLoad = () => {
-        console.log('cargado')
         loadingScreen.classList.add('hidden')
 
         const flag = flagMeshes.get('bowser').clone()
@@ -186,16 +184,18 @@ function loadGUI() {
     const flagKeys = ['bowser', 'mario', 'luigi', 'peach', 'toad', 'estrella']
     const options = {
         flag: flagKeys[0],
+        color: '#2590d1',
+        metalness: 0,
+        roughness: 1,
         diff: dificultades[board.difficulty - 1],
         creative: board.creative,
         applyGameChanges: () => {
-            board.setDifficulty(dificultades.indexOf(options.diff) + 1)
-            board.setCreative(options.creative)
+            menu.changeDiff(dificultades.indexOf(options.diff) + 1)
+            menu.setCreative(options.creative)
             restartBoard()
             game.start()
         },
         shadows: true,
-        color: '#2590d1',
         camera: () => {
             moveCamera(
                 new THREE.Vector3(0, tableBox.max.y + 7, 12),
@@ -211,6 +211,18 @@ function loadGUI() {
         .name('Color')
         .onChange((val) => {
             boardView.changeBoardColor(val)
+        })
+    folder
+        .add(options, 'roughness', 0.0, 1.0, 0.1)
+        .name('Dureza')
+        .onChange((val) => {
+            boardView.changeRoughness(val)
+        })
+    folder
+        .add(options, 'metalness', 0.0, 1.0, 0.1)
+        .name('Metálico')
+        .onChange((val) => {
+            boardView.changeMetalness(val)
         })
     const gameFolder = gui.addFolder('Ajustar partida')
     gameFolder.add(options, 'diff', dificultades).name('Dificultad')
@@ -240,7 +252,7 @@ function createMoon() {
 
 function setLights() {
     const tableTop = tableBox.max.y
-    const ambientLight = new THREE.AmbientLight(0x222244, 1.2)
+    const ambientLight = new THREE.AmbientLight(0x222244, 0.7)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
@@ -248,7 +260,7 @@ function setLights() {
     castDirectional(directionalLight)
     scene.add(directionalLight)
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6)
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8)
     directionalLight2.position.set(0, tableTop + 5, 25)
     directionalLight2.target.position.set(0, tableTop + 5, 0)
     castDirectional(directionalLight2)
@@ -300,6 +312,7 @@ function changeFlag(newVal) {
 }
 
 function win() {
+    gui.domElement.style.display = 'none'
     game.win()
 
     const video = document.createElement('video')
@@ -318,19 +331,20 @@ function win() {
         video.play()
         boardView.addToBoard(pantalla, new THREE.Vector3(0, 5.0, 0))
     }, 1500)
+
     const textObj = showText(textWinMesh)
     moveCamera(
         new THREE.Vector3(0, tableBox.max.y + 5, 12),
         new THREE.Vector3(0, tableBox.max.y + 5, 0),
         500
     )
+
     setTimeout(() => {
         if (!game.isGameOver()) return
         boardView.deleteFromBoard(pantalla)
         boardView.deleteFromBoard(textObj)
         restartBoard()
         menu.showMenu()
-        gui.domElement.style.display = 'none'
         moveCamera(
             new THREE.Vector3(0, tableBox.max.y + 7, 12),
             new THREE.Vector3(0, tableBox.max.y + 1, 0),
@@ -340,6 +354,7 @@ function win() {
 }
 
 function lose() {
+    gui.domElement.style.display = 'none'
     game.lose()
 
     const video = document.createElement('video')
@@ -612,7 +627,7 @@ function loadFonts() {
     const loader = new FontLoader(loadingManager)
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        function(font) {
+        function (font) {
             const endTextSize = 1
             const labelWin = 'Has Ganado!'
             const labelLost = 'Has Perdido!'

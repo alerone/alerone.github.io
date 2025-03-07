@@ -90,7 +90,9 @@ export class Menu {
     }
 
     showMenu() {
-        this.gameMenu.classList.remove('hidden')
+        if (!this.infoActive) {
+            this.gameMenu.classList.remove('hidden')
+        }
         this.showingMenu = true
         if (this.gui) this.gui.domElement.style.display = 'none'
     }
@@ -111,12 +113,34 @@ export class Menu {
         this.diffLabel.innerText = 'Dificultad: ' + this.board.difficultyToString(diff)
         this.nRockets.innerText = 'Explosivos: ' + this.board.nRockets
     }
+
+    changeDiff(diff) {
+        switch (diff) {
+            case BOARD.EASY:
+                this.changeDiffEvent(BOARD.EASY, this.btnEasy)
+                break
+            case BOARD.MEDIUM:
+                this.changeDiffEvent(BOARD.MEDIUM, this.btnMedium)
+                break
+            default:
+                this.changeDiffEvent(BOARD.HARD, this.btnHard)
+                break
+        }
+    }
+
     toggleCreativeEvent() {
         this.board.toggleCreative()
         const isCreative = this.board.creative
         const isCreativeToString = isCreative ? 'Sí' : 'No'
         this.creativeLabel.innerText = 'Mostrar cohetes: ' + isCreativeToString
         buttonColours(this.btnCreative, isCreative, 'green', 'gray')
+    }
+
+    setCreative(newVal) {
+        this.board.setCreative(newVal)
+        const isCreativeToString = newVal ? 'Sí' : 'No'
+        this.creativeLabel.innerText = 'Mostrar cohetes: ' + isCreativeToString
+        buttonColours(this.btnCreative, newVal, 'green', 'gray')
     }
 
     backEvent() {
@@ -149,7 +173,6 @@ export class Menu {
                 this.gameMenu.classList.remove('hidden')
             }
         }
-        console.log(this.infoBtn.classList)
     }
 }
 

@@ -31,9 +31,11 @@ export class BoardView {
         this.coinMeshes = new Map()
         this.loadingManager = loadingManager
 
-        boardMaterial = new THREE.MeshLambertMaterial({
+        boardMaterial = new THREE.MeshStandardMaterial({
             color: 0x2590d1,
             side: THREE.DoubleSide,
+            roughness: 0.7,
+            metalness: 0,
         })
 
         base = new THREE.Mesh(
@@ -80,6 +82,17 @@ export class BoardView {
         base.material.color.set(newVal)
         intersectBase.material.color.set(newVal)
     }
+
+    changeRoughness(newVal) {
+        base.material.roughness = newVal
+        intersectBase.material.roughness = newVal
+    }
+
+    changeMetalness(newVal) {
+        base.material.metalness = newVal
+        intersectBase.material.metalness = newVal
+    }
+
     setBoardYPosition(newY) {
         base.position.y = newY
     }
