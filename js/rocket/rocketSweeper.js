@@ -198,6 +198,7 @@ function loadGUI() {
             menu.changeDiff(dificultades.indexOf(options.diff) + 1)
             board.setDifficulty(dificultades.indexOf(options.diff) + 1)
             menu.setCreative(options.creative)
+            board.setCreative(options.creative)
             restartBoard()
             game.start()
         },
