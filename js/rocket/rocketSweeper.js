@@ -52,6 +52,7 @@ let loadingManager
 
 let textLostMesh
 let textWinMesh
+let textFont
 
 let gltfLoader
 
@@ -124,9 +125,11 @@ function load() {
         const flag = flagMeshes.get('bowser').clone()
 
         if (flag) boardView.setFlagMesh(flag)
+        menu.setInTitleFunction(showTitle)
+        menu.setOutTitleFunction(removeTitle)
 
         moveCamera(
-            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 7, 14),
             new THREE.Vector3(0, tableBox.max.y + 1, 0),
             5000,
             () => {
@@ -166,6 +169,7 @@ function restart() {
  * and adds all to the rocketSweeperBase
  * */
 function restartBoard() {
+    console.log(board)
     if (!menu.isShowingMenu()) {
         board = new Board(board.dimension, board.difficulty, board.creative)
         game = new Game()
@@ -190,7 +194,9 @@ function loadGUI() {
         diff: dificultades[board.difficulty - 1],
         creative: board.creative,
         applyGameChanges: () => {
+            //cambia los colores del menú de botones de dificultad
             menu.changeDiff(dificultades.indexOf(options.diff) + 1)
+            board.setDifficulty(dificultades.indexOf(options.diff) + 1)
             menu.setCreative(options.creative)
             restartBoard()
             game.start()
@@ -198,7 +204,7 @@ function loadGUI() {
         shadows: true,
         camera: () => {
             moveCamera(
-                new THREE.Vector3(0, tableBox.max.y + 7, 12),
+                new THREE.Vector3(0, tableBox.max.y + 7, 14),
                 new THREE.Vector3(0, tableBox.max.y + 1, 0),
                 1500
             )
@@ -288,6 +294,64 @@ function setLights() {
     //scene.add(lightHelper)
 }
 
+function showTitle() {
+    const title = 'RocketSweeper'
+    menu.setCanPressPlay(false)
+    const colors = [
+        0x4fc3f7, 0x7cb342, 0xfbc02d, 0xf44336, 0xba68c8,
+    ] /**#4fc3f7, #7cb342, #fbc02d, #f44336, #ba68c8*/
+    const size = 1.6
+    const firstPosX = size * 0.5 + -((title.length * size) / 2)
+    let delay = 0
+    const lastIndex = 'r' + (title.length - 1)
+    for (let index = 0; index < title.length; index++) {
+        const letter = title[index]
+        const colorCurr = colors[index % colors.length]
+        const currPosition = new THREE.Vector3(firstPosX + index * size, 5.5, 0)
+        const letter3D = create3DText(letter, size, colorCurr, currPosition)
+        letter3D.castShadow = true
+        letter3D.name = letter + index
+        animateTitle(letter3D, currPosition, delay, lastIndex)
+        delay += 70
+    }
+}
+
+function removeTitle() {
+    const title = 'RocketSweeper'
+    for (let index = 0; index < title.length; index++) {
+        const character = title[index]
+        const letter3D = boardView.getObjectByName(character + index)
+        new TWEEN.Tween(letter3D.scale)
+            .to({ x: 0.2, y: 0.2, z: 0.2 }, 500)
+            .easing(TWEEN.Easing.Linear.None)
+            .onComplete(() => {
+                boardView.deleteByName(character + index)
+            })
+            .start()
+    }
+}
+
+function animateTitle(letter, lastPosition, delay, lastIndex) {
+    const positionX = Math.floor(Math.random() * 21) - 10
+    const positionZ = -Math.floor(Math.random() * 21)
+    const positionY = 15
+    const position = new THREE.Vector3(positionX, positionY, positionZ)
+    const duration = 1000
+    const textPosition = new TWEEN.Tween(letter.position)
+        .to({ x: lastPosition.x, y: lastPosition.y, z: lastPosition.z }, duration)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .onComplete(() => {
+            if (letter.name == lastIndex) {
+                menu.setCanPressPlay(true)
+            }
+        })
+
+    setTimeout(() => {
+        boardView.addToBoard(letter, position)
+        textPosition.start()
+    }, delay)
+}
+
 function castDirectional(dirLight) {
     dirLight.castShadow = true
     dirLight.shadow.mapSize.width = 2048
@@ -334,7 +398,7 @@ function win() {
 
     const textObj = showText(textWinMesh)
     moveCamera(
-        new THREE.Vector3(0, tableBox.max.y + 5, 12),
+        new THREE.Vector3(0, tableBox.max.y + 5, 14),
         new THREE.Vector3(0, tableBox.max.y + 5, 0),
         500
     )
@@ -346,7 +410,7 @@ function win() {
         restartBoard()
         menu.showMenu()
         moveCamera(
-            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 7, 14),
             new THREE.Vector3(0, tableBox.max.y + 1, 0),
             1500
         )
@@ -375,7 +439,7 @@ function lose() {
     }, 1500)
     const textObj = showText(textLostMesh)
     moveCamera(
-        new THREE.Vector3(0, tableBox.max.y + 5, 12),
+        new THREE.Vector3(0, tableBox.max.y + 5, 14),
         new THREE.Vector3(0, tableBox.max.y + 5, 0),
         500
     )
@@ -386,7 +450,7 @@ function lose() {
         restartBoard()
         menu.showMenu()
         moveCamera(
-            new THREE.Vector3(0, tableBox.max.y + 7, 12),
+            new THREE.Vector3(0, tableBox.max.y + 7, 14),
             new THREE.Vector3(0, tableBox.max.y + 1, 0),
             1500
         )
@@ -425,6 +489,24 @@ function moveCamera(moveTo, lookAt, duration, onComplete) {
             orbit.target.copy(lookAt)
         })
     moveAnim.start()
+}
+
+function moveAroundObject(target, radius, duration) {
+    const startAngle = 0
+    const endAngle = Math.PI * 2
+
+    const tweenObj = { angle: startAngle }
+
+    new TWEEN.Tween(tweenObj)
+        .to({ angle: endAngle }, duration)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(() => {
+            camera.position.x = target.x + radius * Math.cos(tweenObj.angle)
+            camera.position.z = target.z + radius * Math.sin(tweenObj.angle)
+            camera.lookAt(target)
+        })
+        .repeat(2)
+        .start()
 }
 
 function updatePoints() {
@@ -628,6 +710,7 @@ function loadFonts() {
     loader.load(
         'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
         function (font) {
+            textFont = font
             const endTextSize = 1
             const labelWin = 'Has Ganado!'
             const labelLost = 'Has Perdido!'
@@ -659,15 +742,40 @@ function loadFonts() {
 
             textLostMesh = new THREE.Mesh(lostGeom, textRed)
             textLostMesh.position.x -= (endTextSize * labelLost.length) / 2 - 2
-            textLostMesh.position.y = 4
+            textLostMesh.position.y = 5
             textLostMesh.position.z += 1.5
 
             textWinMesh = new THREE.Mesh(winGeom, textGreen)
             textWinMesh.position.x -= (endTextSize * labelWin.length) / 2 - 1.5
-            textWinMesh.position.y = 4
+            textWinMesh.position.y = 5
             textWinMesh.position.z += 1.5
         }
     )
+}
+
+function create3DText(text, size, color, position) {
+    if (!textFont) return
+    const material = new THREE.MeshStandardMaterial({
+        color: color,
+        roughness: 0.9,
+        metalness: 0.3,
+    })
+
+    const resGeom = new TextGeometry(text, {
+        font: textFont,
+        size: size,
+        height: 0.2,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelSegments: 5,
+    })
+
+    const result = new THREE.Mesh(resGeom, material)
+    result.position.copy(position)
+
+    return result
 }
 
 function loadBackground() {
@@ -716,8 +824,6 @@ function tryStartPlaying(mtrxPosition) {
             showRockets()
         }
     }
-
-    rocketCountLabel.innerText = 'Explosivos: ' + board.nRockets
     return true
 }
 
@@ -800,8 +906,22 @@ function cntrlClick(event) {
     openSurrounding(matrixPos)
 }
 
+//function testingCamera(event) {
+//    if (event.key == 'c') {
+//        moveCamera(
+//            new THREE.Vector3(0, tableBox.max.y + 7, 14),
+//            new THREE.Vector3(0, tableBox.max.y + 1, 0),
+//            3000
+//        )
+//    }
+//    if (event.key == 'r') {
+//        moveAroundObject(new THREE.Vector3(0, tableBox.max.y + 1, 0), 10, 6000)
+//    }
+//}
+
 window.addEventListener('resize', resizeWindow)
 window.addEventListener('mousemove', moveOnBoard)
 window.addEventListener('dblclick', dblClick)
 window.addEventListener('mousedown', rightMouseDown)
 window.addEventListener('click', cntrlClick)
+//window.addEventListener('keydown', testingCamera)

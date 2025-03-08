@@ -122,6 +122,10 @@ export class BoardView {
         base.remove(deleteObj)
     }
 
+    getObjectByName(name) {
+        return base.getObjectByName(name)
+    }
+
     getIntersect(mousePosition) {
         raycaster.setFromCamera(mousePosition, this.camera)
         return raycaster.intersectObject(intersectBase)

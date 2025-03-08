@@ -76,12 +76,20 @@ export class Menu {
     }
 
     playEvent() {
+        if (!this.canPressPlay) return
         this.gameMenu.classList.add('hidden')
         this.game.start()
         // actualiza la dificultad que se puede haber cambiado con los botones de dificultad
         this.board.updateDifficulty()
         this.showingMenu = false
         if (this.gui) this.gui.domElement.style.display = ''
+        if (this.outTitleFunction) {
+            this.outTitleFunction()
+        }
+    }
+
+    setCanPressPlay(val) {
+        this.canPressPlay = val
     }
 
     hideMenu() {
@@ -95,6 +103,9 @@ export class Menu {
         }
         this.showingMenu = true
         if (this.gui) this.gui.domElement.style.display = 'none'
+        if (this.inTitleFunction) {
+            this.inTitleFunction()
+        }
     }
 
     diffMenuEvent() {
@@ -146,6 +157,14 @@ export class Menu {
     backEvent() {
         this.gameMenu.classList.remove('hidden')
         this.diffMenu.classList.add('hidden')
+    }
+
+    setInTitleFunction(func) {
+        this.inTitleFunction = func
+    }
+
+    setOutTitleFunction(func) {
+        this.outTitleFunction = func
     }
 
     infoEvent() {
