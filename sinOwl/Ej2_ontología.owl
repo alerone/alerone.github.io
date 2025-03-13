@@ -1,0 +1,654 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/usuario/ontologies/2025/2/Ej2_alopalv.owl"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/usuario/ontologies/2025/2/Ej2_alopalv.owl">
+    <Prefix name="" IRI="http://www.semanticweb.org/usuario/ontologies/2025/2/Ej2_alopalv.owl/"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Import>http://iptc.org/std/rNews/2011-10-07#</Import>
+    <Declaration>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#address"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#Org1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place5"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Creator1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Creator2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Creator3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Creator4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Creator5"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#New1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#New2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#New3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#New4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#New5"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Place1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Place2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Place3"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Place4"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Place5"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Organization"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#wordCount"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Organization"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#Org1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place5"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="#Creator1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="#Creator2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="#Creator3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="#Creator4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
+        <NamedIndividual IRI="#Creator5"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="#New1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="#New2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="#New3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="#New4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
+        <NamedIndividual IRI="#New5"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="#Place1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="#Place2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="#Place3"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="#Place4"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
+        <NamedIndividual IRI="#Place5"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place3"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place4"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place5"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#address"/>
+        <NamedIndividual IRI="#Creator2"/>
+        <NamedIndividual IRI="#Place2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="#New1"/>
+        <NamedIndividual IRI="#Creator1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="#New1"/>
+        <NamedIndividual IRI="#Place1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="#New2"/>
+        <NamedIndividual IRI="#Creator2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="#New2"/>
+        <NamedIndividual IRI="#Place2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="#New3"/>
+        <NamedIndividual IRI="#Creator3"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="#New3"/>
+        <NamedIndividual IRI="#Place3"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="#New4"/>
+        <NamedIndividual IRI="#Creator4"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="#New4"/>
+        <NamedIndividual IRI="#Place4"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
+        <NamedIndividual IRI="#New5"/>
+        <NamedIndividual IRI="#Creator5"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
+        <NamedIndividual IRI="#New5"/>
+        <NamedIndividual IRI="#Place5"/>
+    </ObjectPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <Literal>Tras meses de conversaciones por vía telemática, esta mañana Javier López, auxiliar administrativo en Soria, se ha reunido con representantes de la NASA en Ellington Field, cerca del Centro Espacial Johnson de la agencia espacial en Houston, para acelerar la puesta en marcha definitiva de la misión Artemis II, pues López le ha prometido la luna a su esposa y apenas quedan unas horas para San Valentín.
+
+«Me dijo que no le prometiera lo imposible, pero yo insistí porque creo que la humanidad está realmente preparada para este reto», insiste este soriano que confía en poder ofrecerle la luna a su mujer el próximo día de los enamorados, «aunque sea por la noche». La prueba de vuelo de Artemis II, que se llevará a cabo esta misma tarde, será lanzada a bordo del poderoso cohete Sistema de Lanzamiento Espacial de la NASA para poner a prueba los sistemas de soporte vital de la nave espacial Orion y validar las técnicas necesarias para que Javi y Maruja puedan disfrutar de su estancia en la luna en una noche romántica inolvidable.
+
+«No sabemos si hay vida allá fuera, pero aquí en la Tierra tenemos mucho amor por repartir», señalaba hace unas horas Norm Knight, Director de Operaciones de Vuelo de la NASA, quien considera que «Maruja no espera que su media naranja vaya a ser capaz de darle algo tan grande y estamos dispuestos a demostrarle que su amor es infinito como el espacio».
+
+Con la misión Artemis II, Javier López y la NASA utilizarán tecnologías punteras para darle una sorpresa «a una gran mujer que, desde el fallecimiento de su padre, está pasando por una mala racha y se merece lo mejor».
+
+«Es un pequeño paso para el hombre, pero un gran salto para el amor», ha declarado solemnemente el novio.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <Literal>Un hombre se sienta a hablar con la NASA para obtener la luna para su pareja</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <Literal>Un señor de Soria apura las negociaciones con la NASA porque le prometió la luna a su mujer y se acerca San Valentín</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">https://www.elmundotoday.com/2025/02/un-senor-de-soria-apura-las-negociaciones-con-la-nasa-porque-le-prometio-la-luna-a-su-mujer-y-se-acerca-san-valentin/</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#wordCount"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">300</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+        <Literal>Una de las grandes alternativas al viejo Twitter sigue creciendo y un análisis confirma ahora que, además, carece de uno de los grandes problemas de las redes en la última década, la desinformación, pues ninguno de los tres usuarios de la plataforma comparte bulos con fake news. “Paco, Marisa y yo somos muy responsables con lo que difundimos entre nosotros”, informa Guillermo, uno de los tres usuarios activos de la plataforma, aunque admite que “algún fachilla hay (Paco), pero no son tan nazis como en Twitter”.
+
+Esa apreciación, común y repetida entre los (tres) usuarios de Bluesky, ha sido confirmada ahora por un estudio llevado a cabo en la Universidad de Zurich sobre los usuarios y actividad de la red social. “Pensamos que nos llevaría meses, pero el estudio ha sido muy rápido de hacer, pues el perfil de usuario es similar: exiliados de Twitter (ahora X) generalmente progresistas. Básicamente hay tres tipos de usuario: Guillermo, Paco y Marisa”, explica Dorian Quelle, el investigador que ha llevado a cabo el estudio.
+
+Los picos de crecimiento de Bluesky han coincidido con tres éxodos de usuarios: en julio del año pasado se dio de alta Guillermo, en noviembre Marisa y en el último gran éxodo de la red social de Musk se dio de alta Paco.
+
+“Aquí el ambiente es mucho mejor, ¿a que sí?”, comentaba el pasado lunes Guillermo Moral.
+
+“Sí”, confirmaba Marisa Remartínez el miércoles.
+
+“Exacto, por eso estamos aquí!!”, contestaba un tercer usuario (Francisco Morán).
+
+Pese a la buena voluntad de los usuarios y la facilidad que tienen para detectar los bulos, Bluesky está lejos aún de ser un “pulmón informativo” y algún que otro bulo sí que circula por la plataforma, como por ejemplo el que dice que en Bluesky hay muchísima gente.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+        <Literal>Un estudio confirma que entre las tres personas que hay en Bluesky apenas circula desinformación</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New2"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">https://www.elmundotoday.com/2025/03/un-estudio-confirma-que-entre-las-tres-personas-que-hay-en-bluesky-apenas-circula-desinformacion/</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+        <Literal>Un estudio presentado esta semana por el departamento de Genética y Microbiología de la Universitat Autònoma de Barcelona (UAB) confirma la presencia de piezas de plástico en el organismo de dos de cada tres padres españoles. Zuhain Muñagorri, responsable de la investigación, advierte de que caminar descalzo en casa nos expone a pisar piezas de Lego de nuestros hijos, algo que hasta ahora solo se consideraba molesto y ligeramente doloroso. «Si alcanzan la zona de alveolo, donde hay el intercambio de gases con la sangre, pueden entrar al torrente sanguíneo y distribuirse por todo el cuerpo», alerta este experto, que urge a concienciar a la ciudadanía del peligro.
+
+El riñón y el hígado, por su función depuradora, son los órganos más expuestos a sufrir daños por culpa de las piezas de Lego. «Algunas tomografías también han mostrado dragones enteros de Ninjago presionando áreas críticas del cerebro», detalla Muñagorri. Una vez se introduce en la planta del pie, el viaje de la pieza a través de la sangre puede tener consecuencias imprevisibles. Entre las más probables se encuentra la obstrucción de las arterias.
+
+Se ha comprobado que algunas figuras de plástico, sobre todo las de Star Wars, tienen la capacidad de «atravesar la barrera intestinal y provocar estreñimiento crónico», reza el estudio.
+
+Los expertos recomiendan acudir al médico si al toser expulsamos «una excavadora de plástico o un muñeco de Fortnite». Son señales compatibles con la presencia de este tipo de plásticos en nuestro organismo.
+
+En cuanto a la prevención, las indicaciones son sencillas de entender aunque difíciles de aplicar: «Que recojan las piezas, que no las dejen por ahí tiradas. Los niños tienen que entender que nos están matando», dice Muñagorri.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+        <Literal>Expertos alertan de la presencia de plásticos en el organismo de padres que llevan años pisando piezas de Lego</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New3"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">https://www.elmundotoday.com/2025/03/expertos-alertan-de-la-presencia-de-plasticos-en-el-organismo-de-padres-que-llevan-anos-pisando-piezas-de-lego/</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+        <Literal>Un equipo de científicos del Massachussets Institute of Technology han confirmado esta semana que el ser humano alcanza finalmente la madurez necesaria para enfrentar la vida a los 84 años. “Todo lo que vive el ser humano es un aprendizaje para la vida y nuestro estudio revela que ese proceso culmina a los 84 años, generalmente”, explica Esther Westerndig, la neurocientífica que ha dirigido la investigación.
+
+“A esa edad se adquiere un equilibrio perfecto entre sabiduría, estabilidad emocional y una absoluta indiferencia por la opinión ajena y lo que se vive a partir de entones ya sí es la vida, y no una enseñanza”, explica la científica. Una vez finalizado el aprendizaje para la vida, es posible tomar decisiones adecuadas y no movido por el impulso propio de las edades inmaduras, como los 28, los 43 o los 68 años, cuando todavía uno no sabe qué quiere ser de mayor.
+
+“De media, no es hasta los 84 años que el ser humano está listo para empezar a vivir, para desempeñar bien su trabajo, para mantener una relación o decidirse a tener hijos”, indica Westerndig. Hasta esa edad, las personas van sumando aprendizajes y lo más probable es que todas sus decisiones sean erróneas.
+
+Una de las conclusiones más graves del estudio es que todo indica que el 85% de las personas mueren sin haber estado preparadas para la vida.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+        <Literal>Un estudio confirma que el ser humano actual tarda, de media, 84 años en prepararse para la vida</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New4"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">https://www.elmundotoday.com/2025/03/un-estudio-confirma-que-el-ser-humano-actual-tarda-de-media-84-anos-en-prepararse-para-la-vida/</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#articleBody"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+        <Literal>El avance de la divulgación sobre salud mental es imparable. Cuando el concepto de «persona vitamina» popularizado por Marian Rojas Estapé parecía haberse asentado, el terapeuta catalán Jofre Cigaló ha sorprendido este mes con la publicación de «Encuentra tu persona butifarra», que supone una vuelta de tuerca a las estrategias para lograr el bienestar emocional. Mientras que Estapé habla de la oxitocina como una hormona clave, Cigaló se centra en la tocina, a la que considera fundamental para una vida placentera.
+
+«Las personas butifarra nos llenan, nos alimentan y se complementan muy bien con las secas. Dan sabor a la vida y, pese a que acumulan mucho sufrimiento detrás, a nosotros nos colman», explica este psicólogo de Vic. En un alegato contra el racismo y los prejuicios, insiste en que hay personas butifarra blanca y personas butifarra negra, todas ellas válidas y compatibles.
+
+Apelando a la expresión catalana «fer butifarra», equivalente a hacer la peineta, Cigaló recalca que las personas butifarra nos enseñan a huir de aquello que no nos conviene para regocijarnos en lo que realmente nos apetece. «Aunque son las menos, las personas butifarra también pueden ser dulces», precisa.
+
+«Las emociones vienen de las tripas, todo lo que nos pasa repercute en los intestinos, porque cerebro y sistema digestivo están conectados. De ahí que las personas butifarra sean fundamentales para que lo que ocurre en nuestra intimidad gástrica se refleje en nuestro bienestar emocional. Somos lo que comemos y si comemos butifarra somos la hostia», señala este divulgador.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">Un psicólogo catalán aconseja rodearse de personas butifarra</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#New5"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#anyURI">https://www.elmundotoday.com/2025/02/un-psicologo-catalan-aconseja-rodearse-de-personas-butifarra/</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#Org1"/>
+        <Literal>El Mundo Today</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator1"/>
+        <Literal>Xavi Puig</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#creator2"/>
+        <Literal>Kike Garcia</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place1"/>
+        <Literal>SORIA</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place2"/>
+        <Literal>UNIVERSIDAD DE ZURICH</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place3"/>
+        <Literal>Universitat Autònoma de Barcelona (UAB)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place4"/>
+        <Literal>Massachussets Institute of Technology</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/flozmel@alumno.upv.es/ontologies/2025/2/untitled-ontology-2#place5"/>
+        <Literal>Vic</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="#Creator1"/>
+        <Literal>Javier G. Cuesta</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="#Creator2"/>
+        <Literal>Carolina Mella</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="#Creator3"/>
+        <Literal>Ángel Luis Sucasas</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="#Creator4"/>
+        <Literal>Jorge Morla</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
+        <NamedIndividual IRI="#Creator5"/>
+        <Literal>Sergi Llanas</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="#New1"/>
+        <Literal>El jefe del Kremlin cuestiona asuntos como quién vigilará los 2.000 kilómetros de frente o si Kiev reabastecerá sus fuerzas durante un hipotético alto el fuego de 30 días. “Espero que hagan lo correcto”, asegura Trump sobre las autoridades rusas</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="#New1"/>
+        <Literal>Putin plantea dudas sobre la tregua que propone EE UU en Ucrania y reclama “una paz a largo plazo</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="#New1"/>
+        <Literal>https://elpais.com/internacional/2025-03-13/putin-plantea-dudas-sobre-la-tregua-que-propone-ee-uu-en-ucrania-y-reclama-una-paz-a-largo-plazo.html</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="#New2"/>
+        <Literal>El ataque se produce a un mes de las elecciones en la prisión de Guayaquil, donde están recluidos los pandilleros más temidos de Ecuador</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="#New2"/>
+        <Literal>description El ataque se produce a un mes de las elecciones en la prisión de Guayaquil, donde están recluidos los pandilleros más temidos de Ecuador</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="#New2"/>
+        <Literal>https://elpais.com/america/2025-03-13/un-muerto-y-dos-heridos-en-un-atentado-con-coche-bomba-en-la-entrada-de-la-carcel-mas-peligrosa-de-ecuador.html</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="#New3"/>
+        <Literal>Ahora que Youtube cumple 10 años, una de sus mayores estrellas afirma que no cambiaría el &apos;online&apos; por la pequeña pantalla</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="#New3"/>
+        <Literal>El Rubius: “En la tele no podría ser yo mismo”</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="#New3"/>
+        <Literal>https://elpais.com/tecnologia/2015/06/15/actualidad/1434351927_620528.html</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="#New4"/>
+        <Literal>La final de la competición deportiva conquistó el WiZink Center de Madrid, reunió a 12.000 personas y anunció una final para junio en México que acogerá a 55.000</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="#New4"/>
+        <Literal>Un día en la final de la Kings League: la apoteosis ‘influencer’ que unió a Piqué, Ibai, Belén Esteban y una pedida de mano</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="#New4"/>
+        <Literal>https://elpais.com/icon/2024-04-21/un-dia-en-la-final-de-la-kings-league-la-apoteosis-influencer-que-unio-a-pique-ibai-belen-esteban-y-una-pedida-de-mano.html</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
+        <NamedIndividual IRI="#New5"/>
+        <Literal>La nueva herramienta del programa de la Generalitat “AI4JUSTICE” supondrá un ahorro de 12.000 horas y 552.000 euros por cada 20 jueces</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
+        <NamedIndividual IRI="#New5"/>
+        <Literal>Cataluña impulsa un plan para agilizar la resolución de sentencias judiciales con Inteligencia Artificial</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
+        <NamedIndividual IRI="#New5"/>
+        <Literal>https://elpais.com/espana/catalunya/2025-03-13/cataluna-impulsa-un-plan-para-agilizar-la-resolucion-de-sentencias-judiciales-con-inteligencia-artificial.html</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="#Place1"/>
+        <Literal>Moscú</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="#Place2"/>
+        <Literal>Guayaquil</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="#Place3"/>
+        <Literal>Madrid</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="#Place4"/>
+        <Literal>Madrid</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
+        <NamedIndividual IRI="#Place5"/>
+        <Literal>Barcelona</Literal>
+    </DataPropertyAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
