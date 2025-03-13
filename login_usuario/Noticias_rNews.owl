@@ -58,39 +58,6 @@
     <Declaration>
         <NamedIndividual IRI="#Place5"/>
     </Declaration>
-    <Declaration>
-        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Article"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#address"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#headline"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Place"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#description"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#url"/>
-    </Declaration>
     <ClassAssertion>
         <Class IRI="http://iptc.org/std/rNews/2011-10-07#Person"/>
         <NamedIndividual IRI="#Creator1"/>
@@ -195,16 +162,6 @@
         <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
         <NamedIndividual IRI="#New4"/>
         <NamedIndividual IRI="#Place4"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#creator"/>
-        <NamedIndividual IRI="#New5"/>
-        <NamedIndividual IRI="#Creator5"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="http://iptc.org/std/rNews/2011-10-07#mentions"/>
-        <NamedIndividual IRI="#New5"/>
-        <NamedIndividual IRI="#Place5"/>
     </ObjectPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#givenName"/>
@@ -325,11 +282,6 @@
         <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
         <NamedIndividual IRI="#Place4"/>
         <Literal>Madrid</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="http://iptc.org/std/rNews/2011-10-07#name"/>
-        <NamedIndividual IRI="#Place5"/>
-        <Literal>Barcelona</Literal>
     </DataPropertyAssertion>
 </Ontology>
 
