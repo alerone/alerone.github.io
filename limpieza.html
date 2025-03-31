@@ -1,0 +1,162 @@
+<!doctype html>
+<!-- 
+  Ejemplos sobre Three.js : Cubo texturado animado
+   	Cubo con color por vertice y mapa uv sobre textura en cruz;
+   	Util para comprobar si funciona Threejs sobre el navegador.
+  rvivo@upv.es 2022
+-->
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <title>Threejs App</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                background-color: #000;
+                margin: 0px;
+                overflow: hidden;
+            }
+
+            .exo2-font {
+                font-family: 'Exo 2', serif;
+                font-optical-sizing: auto;
+                font-weight: 600;
+                font-style: italic;
+            }
+            .lato-font {
+                font-family: 'Lato', serif;
+                font-weight: 400;
+                font-style: normal;
+            }
+        </style>
+        <link href="tailwind.css" rel="stylesheet" />
+        <link href="progress-bar.css" rel="stylesheet" />
+    </head>
+    <body class="overflow-y-auto">
+        <div class="sm:absolute w-screen mb-4 flex flex-col items-center justify-center mt-32 p-2">
+            <h1
+                id="diaLabel"
+                class="lato-font text-4xl font-bold mb-2 text-center px-2 rounded-lg bg-white"
+            >
+                DIA: 24/07/2030
+            </h1>
+            <h1
+                id="semanaLabel"
+                class="lato-font text-4xl font-bold text-center px-2 rounded-lg bg-white"
+            >
+                SEMANA:34
+            </h1>
+        </div>
+        <div
+            class="flex flex-col sm:flex-row sm:justify-between items-center w-screen gap-4 h-screen"
+        >
+            <div
+                class="p-1 w-60 sm:w-1/5 mx-auto min-w-60 rounded-lg bg-gradient-to-r from-green-500 to-blue-500"
+            >
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+                    <div class="flex flex-row items-center mb-10">
+                        <img
+                            id="alvaroImg"
+                            class="w-20 h-20 mr-4 rounded-full border-4 border-blue-500"
+                            src="./images/limpieza/me.jpg"
+                            alt=""
+                        />
+                        <h2 class="text-xl font-semibold text-gray-800 text-center exo2-font">
+                            Aleron
+                        </h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <h3
+                            id="alvaroTask"
+                            class="font-semibold text-xl text-center text-gray-600 lato-font"
+                        >
+                            TAREA
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="p-1 w-60 sm:w-1/5 mx-auto min-w-60 rounded-lg bg-gradient-to-r from-green-500 to-blue-500"
+            >
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+                    <div class="flex flex-row items-center mb-10">
+                        <img
+                            id="alexImg"
+                            class="w-20 h-20 mr-4 rounded-full border-4 border-emerald-500"
+                            src="./images/limpieza/alex.jpg"
+                            alt=""
+                        />
+                        <h2 class="text-xl font-semibold text-gray-800 text-center exo2-font">
+                            Aleksander Fleming
+                        </h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <h3
+                            id="alexTask"
+                            class="text-xl font-semibold text-center text-gray-600 lato-font"
+                        >
+                            TAREA
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="p-1 w-60 sm:w-1/5 mx-auto min-w-60 rounded-lg bg-gradient-to-r from-green-500 to-blue-500"
+            >
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+                    <div class="flex flex-row items-center mb-10">
+                        <img
+                            id="joanImg"
+                            class="w-20 h-20 mr-4 rounded-full border-4 border-indigo-500"
+                            src="./images/limpieza/jobibi.jpg"
+                            alt=""
+                        />
+                        <h2 class="text-xl font-semibold text-gray-800 text-center exo2-font">
+                            Jhonny
+                        </h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <p
+                            id="joanTask"
+                            class="text-xl font-semibold text-center text-gray-600 lato-font"
+                        >
+                            TAREA
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="p-1 w-60 sm:w-1/5 mx-auto min-w-60 rounded-lg bg-gradient-to-r from-green-500 to-blue-500"
+            >
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+                    <div class="flex flex-row items-center mb-10">
+                        <img
+                            id="rubiuImg"
+                            class="w-20 h-20 mr-4 rounded-full border-4 border-amber-300"
+                            src="./images/limpieza/rubiu.jpg"
+                            alt=""
+                        />
+                        <h2 class="text-xl font-semibold text-gray-800 text-center exo2-font">
+                            Robleis
+                        </h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <h3
+                            id="rubiuTask"
+                            class="font-semibold text-center text-xl text-gray-600 lato-font"
+                        >
+                            TAREA
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Scripts de biblioteca -->
+        <script type="module" src="js/limpieza/limpieza.js"></script>
+    </body>
+</html>

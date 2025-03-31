@@ -99,6 +99,15 @@ abbr[title] {
   -webkit-text-decoration: underline dotted;
           text-decoration: underline dotted;
 }
+.border-emerald-500{
+    border-color: oklch(0.696 0.17 162.48); /* oklch(0.696 0.17 162.48) */
+}
+.border-indigo-400{
+    border-color: oklch(0.673 0.182 276.935);
+}
+.border-amber-300{
+    border-color: oklch(0.879 0.169 91.605);
+}
 
 /**
 Add the correct font weight in Edge and Safari.
